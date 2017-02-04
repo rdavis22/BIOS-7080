@@ -14,7 +14,7 @@ for (i in 1:reps){
   #randomly sample the concatenated vector
   tmp<-sample(x)
   #take the difference of the sampled 'A' from the sampled 'B' "reps" number of times
-  results[i]<-mean(tmp[4:6])-mean(temp[1:3])
+  results[i]<-mean(tmp[4:6])-mean(tmp[1:3])
 }
 
 #get a histogram visualization of the results
