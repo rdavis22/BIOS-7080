@@ -21,7 +21,7 @@ prb1.anva<-aov(time~traffic_sig, data=prb1.tibble)
 
 #part d&e) least square means, std, and 95% CI of each traffic stop type
 x_pre<-mean(time[1:5])
-std_pre<-summary(prb1.anova)[[1]][["Mean Sq"]][2] #MSE of residuls    #sd(time[1:5])
+std_pre<-summary(prb1.anva)[[1]][["Mean Sq"]][2] #MSE of residuls    #sd(time[1:5])
 #*note, df=N-t for getting the t distribution #use MSE of residual from ANOVA table
 CI_pre<-c(x_pre-std_pre*qt(0.975, df=12), x_pre+std_pre*qt(0.975, df=12))
 x_semi<-mean(time[6:10])
