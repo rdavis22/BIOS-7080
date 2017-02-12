@@ -87,14 +87,14 @@ d.prb1<-2.11
 M.prb1<-d.prb1*sqrt(2*MSE.prb1/r_i)
 
 #95%CI for treatment means
-CI95_pre<-c(D_1-M, D_1+M)
-CI95_semi<-c(D_2-M, D_2+M)
-CI95_fully<-c(D_3-M, D_3+M)
+CI95_pre<-c(D_1-M.prb1, D_1+M.prb1)
+CI95_semi<-c(D_2-M.prb1, D_2+M.prb1)
+CI95_fully<-c(D_3-M.prb1, D_3+M.prb1)
 
 #95% Simultaneous CI for treatment means
-SCI95_pre<-c(0, D_1+M)
-SCI95_semi<-c(0, D_2+M)
-SCI95_fully<-c(D_3-M, 0)
+SCI95_pre<-c(0, D_1+M.prb1)
+SCI95_semi<-c(0, D_2+M.prb1)
+SCI95_fully<-c(D_3-M.prb1, 0)
 
 ####Problem 3.5####
 ###Data Input
