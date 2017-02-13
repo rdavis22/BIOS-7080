@@ -46,7 +46,7 @@ slp.data<-tibble(predvals.prb1, adjprb1.residuals)
 slp.prb1<-ggplot(data=slp.data)+
   geom_point(aes(x=predvals.prb1, y=adjprb1.residuals))+
   #regression line for plot
-  geom_smooth(aes(x=predvals.prb1, y=adjprb1.residuals), method="lm", se=FALSE)+
+  geom_smooth(aes(x=predvals.prb1, y=adjprb1.residuals), method="loess", se=FALSE)+
   labs(x="Estimated Means", y="Sqrt abs. residuals", title="Spread-Location Plot")
 
 #*Alternative method for S-L plot
@@ -61,6 +61,77 @@ resplot.prb1<-ggplot()+
 #Levene Test (Median)
 lvne_test.prb1<-leveneTest(prb1.anva, center=median)
 
-###Part b)###
-##groups means
-mu_1520<-mean(test)
+###Part b): Ladder of Powers transformation###
+#groups means and standard deviations##
+mu_1520<-mean(hrs_flr[test_temp=="1520"])
+mu_1620<-mean(hrs_flr[test_temp=="1620"])
+mu_1660<-mean(hrs_flr[test_temp=="1660"])
+mu_1708<-mean(hrs_flr[test_temp=="1708"])
+std_1520<-sd(hrs_flr[test_temp=="1520"])
+std_1620<-sd(hrs_flr[test_temp=="1620"])
+std_1660<-sd(hrs_flr[test_temp=="1660"])
+std_1708<-sd(hrs_flr[test_temp=="1708"])
+#vectors of all the means and standard deviations
+mu.prb1b<-c(mu_1520, mu_1620, mu_1660, mu_1708)
+std.prb1b<-c(std_1520, std_1620, std_1660, std_1708)
+##Linear regression of log(std) vs. log(mu) to get estimate for Beta
+trnsfrm.prb1<-lm(log(std.prb1b)~log(mu.prb1b)) #Beta= -1.733 (use -1 in "ladder of powers")
+p.prb1b<-ggplot()+
+  geom_point(aes(x=log(mu.prb1b), y=log(std.prb1b)))+
+  geom_abline(aes(slope=trnsfrm.prb1$coefficients[2],
+              intercept = trnsfrm.prb1$coefficients[1]))+
+  labs(x="Log of the Mean", y="Log of the Standard Deviation")
+
+###1c): Transformed "hrs_failure" (x=1/y)###
+#transformed (1/hrs_flr) "hrs_flr" data based on "ladder of powers"
+hrs_flrtrnsfrm<-1/hrs_flr
+
+#ANOVA with transformed data
+detach(prb1.tibble)
+prb1c.anva<-aov(hrs_flrtrnsfrm~test_temp, data=prb1c.tibble)
+
+#QQ Plot of transformed Data
+qq.prb1c<-ggqqline(prb1c.anva$residuals)+labs(x="Quantile of Standard Normal",
+                                       y="Residuals", title="QQPlot of Residuals")
+
+##data frame for problem 1c
+#predicted values
+predvals.prb1c<-1/predvals.prb1
+#adjusted residuals
+adjprb1c.resid<-sqrt(abs(prb1c.anva$residuals))
+  
+prb1c.tibble<-tibble(predvals.prb1c, adjprb1c.resid)
+#Spread-Location Plot (transformed data)
+slp.prb1c<-ggplot(data=prb1c.tibble, aes(x=1/predvals.prb1, y=adjprb1c.resid))+
+  geom_point()+
+  geom_smooth(method = "loess", se=F)+
+  labs(x="Estimated Means", y="Sqrt abs. residuals", title="Spread-Location Plot (Transformed)")
+
+#Levene Test (transformed data)
+lvne_test.prb1c<-leveneTest(prb1c.anva, center=median)
+
+###1d):Custom contrasts for ANOVA of transformed data###
+#initial contrast matrix (first column is the intercept term(1/number of terms repeated by the length of the number of terms))
+mat<-cbind(rep(1/4, 4), "linear"=c(-0.773, -0.051, 0.238, 0.585),
+           "Quadratic"=c(0.382, -0.637, -0.328, 0.583),
+           "Cubic"=c(-0.078, 0.584, -0.765, 0.259))
+#final contrast matrix (inverse of original transposed)
+mymat<-solve(t(mat))
+
+#remove the intercept term (1st column of "1's")
+my.contrasts<-mymat[,2:4]
+
+##create tibble of transformed data, apply contrasts, and then run anova##
+#multiply transform "hours to failure" by 1000
+hrs_flrtrnsfrm.prb1d<-1000*hrs_flrtrnsfrm
+#create tibble
+prb1d.tibble<-tibble(hrs_flrtrnsfrm.prb1d, test_temp)
+
+#apply contrasts
+contrasts(prb1d.tibble$test_temp)<-my.contrasts
+
+#ANOVA with custom contrasts
+prb1d.anva<-aov(hrs_flrtrnsfrm.prb1d~test_temp, data=prb1d.tibble)
+#use "summary.lm" to get the summary statistics for factored anova (recall:...
+#'test_temp' is class factor). This will use t-test in R as opposed to F-test...
+#in most statistics textbooks.
