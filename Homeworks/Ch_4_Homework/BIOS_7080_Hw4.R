@@ -135,3 +135,79 @@ prb1d.anva<-aov(hrs_flrtrnsfrm.prb1d~test_temp, data=prb1d.tibble)
 #use "summary.lm" to get the summary statistics for factored anova (recall:...
 #'test_temp' is class factor). This will use t-test in R as opposed to F-test...
 #in most statistics textbooks.
+
+
+####Problem 4.3####
+###Data Input###
+#number of stolons rooted vs. not rooted (response variable)
+y<-c(15, 13, 13, 6, 16, 14, 8, 9, 8, 49, 51, 51, 42, 48, 50, 56, 55, 40,
+        11, 11, 6, 4, 12, 9, 18, 10, 16, 53, 53, 58, 60, 52, 55, 46, 54, 48)
+#which replication trial number
+replication<-factor(c(rep ("replication 1", 18), rep("replication 2", 18)))
+#rooted vs. not rooted
+root<-factor(c(rep("rooted", 9), rep("not rooted", 9), rep("rooted", 9),
+               rep("not rooted", 9)))
+#clone number
+clone<-factor(rep(1:9, 4))
+
+##arcsin transform of y into x=asin(sqrt(pie_hat))
+#get pie_hat estimate
+pie_hat<-(y[root=="rooted"]+3/8)/(length(y[root=="rooted"])+3/4)
+#arcsin transform of response variable
+x<-asin(sqrt(pie_hat))
+
+#combine the data into a tibble
+prb4.tibble<-tibble(y, replication, root, clone)
+
+##Perform ANOVA for the data (x vs. the rooted clones)
+prb4.anva<-aov(x~clone[root=="rooted"])
+
+
+####Problem 4.5####
+###Data input###
+rand_samp.prb5<-c(14.3, 16.0, 17.3, 17.5, 17.8, 18.7, 18.8, 18.9, 20.0, 20.8,
+                  21.4, 22.7, 23.2, 25.6, 27.8)
+##4.5a)##
+# f-values
+f_vals.prb5<-c()
+for (i in seq_along(rand_samp.prb5)){
+  f_vals.prb5[i]<-(i-0.5)/length(rand_samp.prb5)
+}
+
+#standard normal quantiles of f-values
+snq.prb5<-qnorm(f_vals.prb5)
+
+##4.5b)##
+#form tibble for easier plotting
+prb5.tibble<-tibble(rand_samp.prb5, f_vals.prb5, snq.prb5)
+
+#plot of observations vs. standard normal quantiles
+p.prb5<-ggplot(data=prb5.tibble, aes(x=snq.prb5, y=rand_samp.prb5))+
+  geom_point()+
+  geom_smooth(method="lm", se=F)+
+  labs(title="Observations vs. Standard Normal Quantiles",
+       x="Standard Normal Quantiles", y="Observations from Rand. Sample")
+
+####Problem 4.6####
+###Data input###
+rand_samp.prb6<-c(2, 3, 4, 5, 10, 28, 34, 35, 39, 63, 87, 97, 112, 156, 188, 253)
+##4.6a)##
+# f-values
+f_vals.prb6<-c()
+for (i in seq_along(rand_samp.prb6)){
+  f_vals.prb6[i]<-(i-0.5)/length(rand_samp.prb6)
+}
+
+#standard normal quantiles of f-values
+snq.prb6<-qnorm(f_vals.prb6)
+
+##4.5b)##
+#form tibble for easier plotting
+prb6.tibble<-tibble(rand_samp.prb6, f_vals.prb6, snq.prb6)
+
+#plot of observations vs. standard normal quantiles
+p.prb6<-ggplot(data=prb6.tibble, aes(x=snq.prb6, y=rand_samp.prb6))+
+  geom_point()+
+  geom_smooth(method="lm", se=F)+
+  labs(title="Observations vs. Standard Normal Quantiles",
+       x="Standard Normal Quantiles", y="Observations from Rand. Sample")
