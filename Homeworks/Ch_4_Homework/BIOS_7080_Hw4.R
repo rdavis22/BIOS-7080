@@ -151,8 +151,8 @@ root<-factor(c(rep("rooted", 9), rep("not rooted", 9), rep("rooted", 9),
 clone<-factor(rep(1:9, 4))
 
 ##arcsin transform of y into x=asin(sqrt(pie_hat))
-#get pie_hat estimate
-pie_hat<-(y[root=="rooted"]+3/8)/(length(y[root=="rooted"])+3/4)
+#get pie_hat estimate (the book)
+pie_hat<-(y[root=="rooted"]/(y[root=="rooted"]+y[root=="not rooted"]))#+3/8)/(length(levels(replication))+3/4)
 #arcsin transform of response variable
 x<-asin(sqrt(pie_hat))
 
