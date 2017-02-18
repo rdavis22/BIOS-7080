@@ -27,8 +27,39 @@ prb1.tibble<-tibble(treat.prb1, finger_taps.prb1)
 ###Computation###
 ##ANOVA##
 prb1.anva<-aov(finger_taps.prb1~treat.prb1, data = prb1.tibble)
+#caputre the MSE of the ANOVA
+MSE.prb1<- summary(prb1.anva)[[1]][['Mean Sq']][[2]]
 
 ##b) assess model adequecy, fit, error normality, and error homoscedasticity
-##model fit
+##1b-i) model fit##
 #calculate residuals
-prb1.residuals<-residuals(prb1.anva)
+resids.prb1<-residuals(prb1.anva)
+#standardized residuals
+stdrdresids.prb1<-stdres(prb1.anva) #*sum to zero for each level of "treat.prb1"
+#plot of standardized residuals vs. Caffeine dosage
+resplot.prb1<-ggplot()+
+  geom_point(aes(x=treat.prb1, y=stdrdresids.prb1))+
+  labs(x="Treatments (caffeine dosage /mL)", y="Standardized Residuals",
+       title="Standardized Residuals vs. Treamtent (caffeine dosage /mL)")
+
+##1b-ii) normality of errors##
+#Quantile-quantile plot
+qq.prb1<-ggqqline(resids.prb1)+
+  labs(x="Quantile of Standard Normal", y="Residuals", title="QQPlot of Residuals")
+
+##1b-iii) homogeneous variances assumption##
+
+#S-L plot
+slp.prb1<-spreadLevelPlot(prb1.anva, main="S-L Plot: Caffeine intake")
+
+#Levene Test of medians
+lvne_test.prb1<-leveneTest(prb1.anva, center="median")
+
+##e) ("c" and "d" were already answered)
+#random assignment of treatment to response
+rnd_resp.prb1<-sample(finger_taps.prb1)
+rnd_trt.prb1<-sample(treat.prb1)
+
+
+####Q2####
+###BUild the Contrasts###
