@@ -279,3 +279,62 @@ prb5.anva<-with(prb5.tibble,
 f_stat.prb5<-prb5.anva$anova.table[[4]][1]
 #get the p-value for the F-statistic from the ANOVA
 p_F.prb5<-pf(f_stat.prb5, 2, 12, lower.tail=F)
+
+
+####Q6####
+###Data Input###
+#Thread breaks (response variable)
+thrd_brks.prb6<-c(4, 3, 2, 3, 4, 4, 3, 6, 5, 4, 2, 4, 4, 2, 3, 4, 7, 6, 4, 6,
+                  7, 2, 9, 5, 5, 9, 3, 8, 6, 4, 7, 6, 12, 6, 14, 12, 10, 9, 12,
+                  17, 7, 6, 12, 11, 6, 13, 10, 14, 17, 15, 7, 20, 13, 11, 16, 25,
+                  11, 24, 18, 21, 16, 19, 9, 23)
+#speed (1=slow, 2=normal, 3=fast, 4=maximum)
+speed.prb6<-factor(c(rep(1, 16), rep(2, 16), rep(3, 16), rep(4, 16)))
+#combine into a tibble
+prb6.tibble<-tibble(thrd_brks.prb6, speed.prb6)
+
+###6a)###
+#ANOVA for problem 6
+prb6.anva<-aov(thrd_brks.prb6~speed.prb6, data=prb6.tibble)
+
+#spread-Location plot:
+slp.prb6<-spreadLevelPlot(prb6.anva, xlab="Fitted values for thread breaks", pch = 19)
+
+#Levene_test for medians
+lvne_test.prb6<-leveneTest(prb6.anva, center=median)
+
+###6b)###
+##Try poisson transformation
+#square root transformation for thread breaks to stabilize variances for Poisson distr.
+thrd_poiss.prb6<-sqrt(thrd_brks.prb6)
+#new data frame for ANOVA.
+prb6_poiss.tibble<-tibble(thrd_poiss.prb6, speed.prb6)
+
+#corrected anova for Poisson transformation
+prb6_poiss.anva<-aov(thrd_poiss.prb6~speed.prb6, data = prb6_poiss.tibble)
+
+#spread-Location plot (poisson transformation):
+slp_poiss.prb6<-spreadLevelPlot(prb6_poiss.anva, main = "Spread_Level Plot for Poisson transformed data",
+                                  xlab="Fitted values for thread breaks", pch = 19)
+
+#Levene_test for medians (poisson transformation)
+lvne_poiss.prb6<-leveneTest(prb6_poiss.anva, center=median) #poisson transformation fails
+
+##try box-cox procedure (a.k.a "power-ladder") to come up with appropriate transformation
+bxcx.prb6<-boxCox(prb6.anva)
+
+#use the log transformation of the data
+thrd_ln.prb6<-log(thrd_brks.prb6)
+
+#new data frame for ANOVA.
+prb6_ln.tibble<-tibble(thrd_ln.prb6, speed.prb6)
+
+#corrected anova for Log transformation
+prb6_ln.anva<-aov(thrd_ln.prb6~speed.prb6, data = prb6_ln.tibble)
+
+#spread-Location plot (log transformation):
+slp_ln.prb6<-spreadLevelPlot(prb6_ln.anva, main = "Spread_Level Plot for Log transformed data",
+                                xlab="Fitted values for thread breaks", pch = 19)
+
+#Levene_test for medians (poisson transformation)
+lvne_ln.prb6<-leveneTest(prb6_ln.anva, center=median) #poisson transformation fails
