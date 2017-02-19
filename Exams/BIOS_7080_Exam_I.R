@@ -178,3 +178,80 @@ powr.prb3<-pwr.anova.test(k=t.prb3, n=5, f=f1.prb3, sig.level=alpha.prb3) #power
 f2.prb3<-sqrt(6/30*sigma_tau2/MSE.prb3)
 #power with r=6
 powr.prb3<-pwr.anova.test(k=t.prb3, n=6, f=f1.prb3, sig.level=alpha.prb3) #power.prb3=0.9596 (stop here)
+
+
+####Q4####
+###Data Input###
+#concentration in a three-component liquid mixture
+concentration.prb4<-c(58.2, 57.2, 58.4, 55.8, 54.9, 56.3, 54.5, 57.0, 55.3,
+                      50.1, 54.2, 55.4, 52.9, 49.9, 50.0, 51.7)
+
+#catalyst type
+catalyst.prb4<-factor(c(rep(1, 5), rep(2, 4), rep(3, 3), rep(4, 4)))
+
+#create data frame
+prb4.tibble<-tibble(concentration.prb4, catalyst.prb4)
+
+###4a) 95% CI for mean###
+#ANOVA
+prb4.anva<-aov(concentration.prb4~catalyst.prb4, data=prb4.tibble)
+
+#mean of concentration for catalyst "1"
+mu_1.prb4<-mean(concentration.prb4[catalyst.prb4=="1"])
+#overall size of sample
+N.prb4<-length(concentration.prb4)
+#n for conc. for catalyst 1
+nconc1.prb4<-length(concentration.prb4[catalyst.prb4=="1"])
+#MSE (sigma^2)
+MSE.prb4<-summary(prb4.anva)[[1]][['Mean Sq']][[2]]
+#standard error of mean conc. for catalyst=="1"
+se1.prb4<-sqrt(MSE.prb4/nconc1.prb4)
+#t-value for the 95% CI
+t_95.prb4<-qt(0.975, N.prb4-length(levels(catalyst.prb4)))
+
+#95% CI for catalyst=1
+CI95_1.prb4<-c(mu_1.prb4-t_95.prb4*se1.prb4, mu_1.prb4+t_95.prb4*se1.prb4)
+
+###4b) 95% CI for the other means###
+#means for the other catalyst groups
+mu_2.prb4<-mean(concentration.prb4[catalyst.prb4=="2"])
+mu_3.prb4<-mean(concentration.prb4[catalyst.prb4=="3"])
+mu_4.prb4<-mean(concentration.prb4[catalyst.prb4=="4"])
+
+#number of in each catalyst group
+nconc2.prb4<-length(concentration.prb4[catalyst.prb4=="2"])
+nconc3.prb4<-length(concentration.prb4[catalyst.prb4=="3"])
+nconc4.prb4<-length(concentration.prb4[catalyst.prb4=="4"])
+
+#each pairwise difference in mean
+mu21.prb4<-mu_2.prb4-mu_1.prb4
+mu31.prb4<-mu_3.prb4-mu_1.prb4
+mu41.prb4<-mu_4.prb4-mu_1.prb4
+mu32.prb4<-mu_3.prb4-mu_2.prb4
+mu42.prb4<-mu_4.prb4-mu_2.prb4
+mu43.prb4<-mu_4.prb4-mu_3.prb4
+
+#standard errors for each pairwise comparion group
+se21.prb4<-sqrt(MSE.prb4*(1/nconc2.prb4+1/nconc1.prb4))
+se31.prb4<-sqrt(MSE.prb4*(1/nconc3.prb4+1/nconc1.prb4))
+se41.prb4<-sqrt(MSE.prb4*(1/nconc4.prb4+1/nconc1.prb4))
+se32.prb4<-sqrt(MSE.prb4*(1/nconc3.prb4+1/nconc2.prb4))
+se42.prb4<-sqrt(MSE.prb4*(1/nconc4.prb4+1/nconc2.prb4))
+se43.prb4<-sqrt(MSE.prb4*(1/nconc4.prb4+1/nconc3.prb4))
+
+#95% CI's for the catalyst groups 2, 3, and 4
+CI95_21.prb4<-c(mu21.prb4-t_95.prb4*se21.prb4, mu21.prb4+t_95.prb4*se21.prb4)
+CI95_31.prb4<-c(mu31.prb4-t_95.prb4*se31.prb4, mu31.prb4+t_95.prb4*se31.prb4)
+CI95_41.prb4<-c(mu41.prb4-t_95.prb4*se41.prb4, mu41.prb4+t_95.prb4*se41.prb4)
+CI95_32.prb4<-c(mu32.prb4-t_95.prb4*se32.prb4, mu32.prb4+t_95.prb4*se32.prb4)
+CI95_42.prb4<-c(mu42.prb4-t_95.prb4*se42.prb4, mu42.prb4+t_95.prb4*se42.prb4)
+CI95_43.prb4<-c(mu43.prb4-t_95.prb4*se43.prb4, mu43.prb4+t_95.prb4*se43.prb4)
+
+###4c-e)Tukey Test###
+#gets the 95% SCI
+tuky.prb4<-TukeyHSD(prb4.anva)
+#plot of Tukey test
+p.prb4<-(TukeyHSD(prb4.anva, "catalyst.prb4"))
+
+#An alternative method
+tuky_alt.prb4<-glht(prb4.anva, linfct=mcp(catalyst.prb4="Tukey"))
