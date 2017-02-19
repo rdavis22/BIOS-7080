@@ -13,6 +13,8 @@ if(!require(lmtest))
   install.packages("lmtest")
 if(!require(pwr))
   install.packages("pwr")
+if(!require(rpsychi))
+  install.packages("rpsychi")
 
 ####Q1####
 ###Data Input###
@@ -255,3 +257,25 @@ p.prb4<-(TukeyHSD(prb4.anva, "catalyst.prb4"))
 
 #An alternative method
 tuky_alt.prb4<-glht(prb4.anva, linfct=mcp(catalyst.prb4="Tukey"))
+
+
+####Q5####
+###Data Input###
+##Summary Statistics
+#vector of means 
+mu_vec.prb5<-c(3.8, 4.6, 2.5)
+#vector of sample standard deviations
+std_vec.prb5<-c(0.75, 0.90, 0.30)
+#vector of sample sizes
+n_vec.prb5<-c(5, 4, 6)
+
+#combine into a tibble
+prb5.tibble<-tibble(mu_vec.prb5, std_vec.prb5, n_vec.prb5)
+
+#ANOVA just using the summary statistics (to the 4th decimal place)
+prb5.anva<-with(prb5.tibble,
+                ind.oneway.second(m=mu_vec.prb5, sd=std_vec.prb5, n=n_vec.prb5, digits=4))
+#F-statistic
+f_stat.prb5<-prb5.anva$anova.table[[4]][1]
+#get the p-value for the F-statistic from the ANOVA
+p_F.prb5<-pf(f_stat.prb5, 2, 12, lower.tail=F)
