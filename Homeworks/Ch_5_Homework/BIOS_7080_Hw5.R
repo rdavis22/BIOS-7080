@@ -89,7 +89,7 @@ CI90_sigmatau2.prb5_1<-c(SSA.prb5_1*(1-Fu.prb5_1/Fval.prb5_1)/(r.prb5_1*C.prb5_1
 ###Part c)###
 #Test the null hypothesis that sigma_tau^2=0
 #get the p-value
-pval.prb5_1<-pf(Fval.prb5_1, 4, 35, lower.tail = F)
+pval.prb5_1<-pf(Fval.prb5_1, t.prb5_1-1, N.prb5_1-t.prb5_1, lower.tail = F)
 
 ###Part d)###
 ##Intraclass correlation coefficient with 90% CI
@@ -105,10 +105,82 @@ CI90_rhoI.prb5_1<-c((Fval.prb5_1-Fu.prb5_1d)/(Fval.prb5_1+(r.prb5_1-1)*Fu.prb5_1
 
 
 ####Problem 5.2####
+###Data Input###
+#The patient number of the samples
+patient<-factor(c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8))
+#Amount of cholesterol
+cholesterol<-c(167.3, 166.7, 186.7, 184.2, 100.0, 107.9, 214.5, 215.3, 148.5, 
+               149.5, 171.5, 167.3, 161.5, 159.4, 243.6, 245.5)
+#dataframe for the data
+prb5_2.tibble<-tibble(patient, cholesterol)
+
+###Part a)###
+#classical method for random effects model
+prb5_2.aov<-aov(cholesterol~Error(patient), data=prb5_2.tibble)
+
+#mixed effects method for random effects model
+prb5_2.lmer<-lmer(cholesterol~1+(1|patient))
+prb5_2.anova<-anova(prb5_2.lmer)
+SSA.prb5_2<-25132
+SSW.prb5_2<-48.16
+MSA.prb5_2<-3590
+MSW.prb5_2<-6.02
+
+###Part b)###
+#get the estimate for the F value
+Fval.prb5_2<-MSA.prb5_2/MSW.prb5_2
+
+#Number of treatments
+t.prb5_2<-length(levels(patient))
+#number of replications in each treatment
+r.prb5_2<-length(patient[patient=='1'])
+#total number of observations
+N.prb5_2<-length(patient)
+
+##point estimate and 90% CI for variance of error
+#point estimate for variance for samples
+sigmae2.prb5_2<-MSW.prb5_2
+#point estimate
+#chi-square variables for building 90% CI for sigma_error^2
+A.prb5_2<-qchisq(.95, N.prb5_2-t.prb5_2)
+B.prb5_2<-qchisq(.05, N.prb5_2-t.prb5_2)
+#90% CI for sigma_error^2
+CI90_sigmae2.prb5_2<-c(SSW.prb5_2/A.prb5_2, SSW.prb5_2/B.prb5_2)
+
+##point estimate and 90% CI for variance of treatment
+#point estimate for variance for patients
+sigmatau2.prb5_2<-(MSA.prb5_2-MSW.prb5_2)/r.prb5_2
+#critical values for sigma_tau^2
+#F upper critical value (F(0.05, t-1=7, t(r-1)=8)) for 90% CI for sigma_tau^2
+Fu.prb5_2<-qf(0.975, t.prb5_2-1, N.prb5_2-t.prb5_2)
+#F lower critical value (F(0.05, t-1=7, t(r-1)=8)) for 90% CI for sigma_tau^2
+Fl.prb5_2<-qf(0.025, t.prb5_2-1, N.prb5_2-t.prb5_2)
+##chi-square variables for building 90% CI for sigma_tau^2
+C.prb5_2<-qchisq(0.975, t.prb5_2-1)
+D.prb5_2<-qchisq(0.025, t.prb5_2-1)
+
+#90% CI for sigma_tau^2
+CI90_sigmatau2.prb5_2<-c(SSA.prb5_2*(1-Fu.prb5_2/Fval.prb5_2)/(r.prb5_2*C.prb5_2),
+                         SSA.prb5_2*(1-Fl.prb5_2/Fval.prb5_2)/(r.prb5_2*D.prb5_2))
+
+#Test the null hypothesis that sigma_tau^2=0
+#get the p-value
+pval.prb5_2<-pf(Fval.prb5_2, t.prb5_2-1, N.prb5_2-t.prb5_2 , lower.tail = F)
+
+###Part c)###
+##Intraclass correlation coefficient with 90% CI
+#point estimate
+rhoI.prb5_2<-sigmatau2.prb5_2/(sigmatau2.prb5_2+sigmae2.prb5_2)
+#get new critical F values for rho based on alpha=.10
+Fu.prb5_2c<-qf(0.95, t.prb5_2-1, N.prb5_2-t.prb5_2)
+Fl.prb5_2c<-qf(0.05, t.prb5_2-1, N.prb5_2-t.prb5_2)
+
+#90% CI
+CI90_rhoI.prb5_2<-c((Fval.prb5_2-Fu.prb5_2c)/(Fval.prb5_2+(r.prb5_2-1)*Fu.prb5_2c),
+                    (Fval.prb5_2-Fl.prb5_2c)/(Fval.prb5_2+(r.prb5_2-1)*Fl.prb5_2c))
+
+####Problem 5.3 Exmple####
 # batch<-factor(c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6))
 # method<-factor(c(rep("A", 6), rep("B", 6)))
 # residue<-c(120, 110, 120, 100, 140, 130, 71, 71, 70, 76, 63, 68)
 # summary(aov(residue~batch+Error(method/batch)))
-#The patient is the "fixed 
-patient<-factor(c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8))
-samples<-factor(c(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2))
