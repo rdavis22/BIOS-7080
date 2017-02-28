@@ -179,6 +179,7 @@ Fl.prb5_2c<-qf(0.05, t.prb5_2-1, N.prb5_2-t.prb5_2)
 CI90_rhoI.prb5_2<-c((Fval.prb5_2-Fu.prb5_2c)/(Fval.prb5_2+(r.prb5_2-1)*Fu.prb5_2c),
                     (Fval.prb5_2-Fl.prb5_2c)/(Fval.prb5_2+(r.prb5_2-1)*Fl.prb5_2c))
 
+
 ####Problem 5.3 Exmple####
 # batch<-factor(c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6))
 # method<-factor(c(rep("A", 6), rep("B", 6)))
