@@ -95,10 +95,20 @@ pval.prb5_1<-pf(Fval.prb5_1, 4, 35, lower.tail = F)
 ##Intraclass correlation coefficient with 90% CI
 #point estimate
 rhoI.prb5_1<-sigmatau2.prb5_1/(sigmatau2.prb5_1+sigmae2.prb5_1)
+#get new critical F values for rho based on alpha=.10
+Fu.prb5_1d<-qf(0.95, t.prb5_1-1, N.prb5_1-t.prb5_1)
+Fl.prb5_1d<-qf(0.05, t.prb5_1-1, N.prb5_1-t.prb5_1)
 
 #90% CI
-CI90_rhoI.prb5_1<-c((Fval.prb5_1-Fu.prb5_1)/(Fval.prb5_1+(r.prb5_1-1)*Fu.prb5_1),
-                    (Fval.prb5_1-Fl.prb5_1)/(Fval.prb5_1+(r.prb5_1-1)*Fl.prb5_1))
+CI90_rhoI.prb5_1<-c((Fval.prb5_1-Fu.prb5_1d)/(Fval.prb5_1+(r.prb5_1-1)*Fu.prb5_1d),
+                    (Fval.prb5_1-Fl.prb5_1d)/(Fval.prb5_1+(r.prb5_1-1)*Fl.prb5_1d))
 
 
 ####Problem 5.2####
+# batch<-factor(c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6))
+# method<-factor(c(rep("A", 6), rep("B", 6)))
+# residue<-c(120, 110, 120, 100, 140, 130, 71, 71, 70, 76, 63, 68)
+# summary(aov(residue~batch+Error(method/batch)))
+#The patient is the "fixed 
+patient<-factor(c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8))
+samples<-factor(c(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2))
