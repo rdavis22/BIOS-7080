@@ -20,18 +20,30 @@ prb6_1.tibble<-tibble(alcohol, base, y)
 prb6_1.aov<-aov(y~base*alcohol, data = prb6_1.tibble)
 
 ###Part b)###
-##cell means
+##cell means##
 cellmu.prb6_1<-c(mean(y[1:4]), mean(y[5:8]), mean(y[9:12]), mean(y[13:16]),
                  mean(y[17:20]), mean(y[21:24]))
-##marginal means
+##marginal means##
 #base means
 basemu.prb6_1<-c(mean(y[base=="1"]), mean(y[base=="2"]))
+#number of levels of base
+n.base<-length(basemu.prb6_1)
 #alcohol means
 alcoholmu.prb6_1<-c(mean(y[alcohol=="1"]), mean(y[alcohol=="2"]),
                     mean(y[alcohol=="3"]))
-#total
+#number of levels of alcohol
+n.alcohol<-length(alcoholmu.prb6_1)
+#total mean
 mu.prb6_1<-mean(y)
+#total number of cells
+N.prb6_1<-length(prb6_1.tibble$y)
+#number of replications
+r.prb6_1<-4 #from the no. of observations per cell
 
-##standard errors
-#standard error of the 
-# sebase.prb6_1<-
+##standard errors##
+#MSE of the model
+MSE.prb6_1<-summary(prb6_1.aov)[[1]][['Mean Sq']][4]
+#standard error of the base
+sebase.prb6_1<-sqrt(MSE.prb6_1/(r.prb6_1*n.alcohol))
+#standard error of the alcohol
+sealcohol.prb6_1<-sqrt(MSE.prb6_1/(r.prb6_1*n.base))
