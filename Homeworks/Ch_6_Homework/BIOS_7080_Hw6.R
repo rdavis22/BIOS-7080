@@ -1,6 +1,10 @@
 ####BIOS 7080: Hw Ch. 6####
 if(!require(tidyverse))
   install.packages("tidyverse")
+if(!require(car))
+  install.packages("car")
+if(!require(MASS))
+  install.packages("MASS")
 
 ####Problem 6.1####
 ###Data Input###
@@ -43,7 +47,70 @@ r.prb6_1<-4 #from the no. of observations per cell
 ##standard errors##
 #MSE of the model
 MSE.prb6_1<-summary(prb6_1.aov)[[1]][['Mean Sq']][4]
+#MS of base
+MSbase.prb6_1<-summary(prb6_1.aov)[[1]][['Mean Sq']][1]
+#MS of alcohol
+MSalcohol.prb6_1<-summary(prb6_1.aov)[[1]][['Mean Sq']][2]
+#MS of interaction
+MSintrct.prb6_1<-summary(prb6_1.aov)[[1]][['Mean Sq']][3]
 #standard error of the base
 sebase.prb6_1<-sqrt(MSE.prb6_1/(r.prb6_1*n.alcohol))
 #standard error of the alcohol
 sealcohol.prb6_1<-sqrt(MSE.prb6_1/(r.prb6_1*n.base))
+#standard error of the cells
+secells.prb6_1<-sqrt(MSE.prb6_1/r.prb6_1)
+
+###Part c)###
+#F statistic for interaction
+F0.prb6_1<-MSintrct.prb6_1/MSE.prb6_1
+#critical F-value (alpha, (n.base-1)*(n.alcohol-1), n.base*n.alcohol*(r.prb6_1-1))
+Fcrit.prb6_1<-qf(0.95, (n.base-1)*(n.alcohol-1), n.base*n.alcohol*(r.prb6_1-1))
+#p-value
+pval.prb6_1<-pf(F0.prb6_1, (n.base-1)*(n.alcohol-1),
+                n.base*n.alcohol*(r.prb6_1-1), lower.tail = F)
+
+###Part d)###
+#standard error for multiple contrasts (mu1-mu2)
+sc.prb6_1<-sqrt((MSE.prb6_1/r.prb6_1)*(1^2+(-1)^2))
+#Bonf. t-value for base effects (alpha/2=0.975, k=3, v=ab(r-1)=18)
+tval.prb6_1b<-2.64
+#Bonf. t-value for alcohol effects (alpha/2=0.975, k=6, v=ab(r-1)=18)
+tval.prb6_1a<-2.96
+
+##mulitple contrasts for simple effects
+#base effects
+b12alc1<-cellmu.prb6_1[1]-cellmu.prb6_1[2]
+b12alc2<-cellmu.prb6_1[3]-cellmu.prb6_1[4]
+b12alc3<-cellmu.prb6_1[5]-cellmu.prb6_1[6]
+
+#alcohol effects
+alc12b1<-cellmu.prb6_1[1]-cellmu.prb6_1[3]
+alc13b1<-cellmu.prb6_1[1]-cellmu.prb6_1[5]
+alc23b1<-cellmu.prb6_1[3]-cellmu.prb6_1[5]
+alc12b2<-cellmu.prb6_1[2]-cellmu.prb6_1[4]
+alc13b2<-cellmu.prb6_1[2]-cellmu.prb6_1[6]
+alc23b2<-cellmu.prb6_1[4]-cellmu.prb6_1[6]
+
+##95% SCI
+#base effects
+SCI95_b12alc1<-c(b12alc1-tval.prb6_1b*sc.prb6_1, b12alc1+tval.prb6_1b*sc.prb6_1)
+SCI95_b12alc2<-c(b12alc2-tval.prb6_1b*sc.prb6_1, b12alc2+tval.prb6_1b*sc.prb6_1)
+SCI95_b12alc3<-c(b12alc3-tval.prb6_1b*sc.prb6_1, b12alc3+tval.prb6_1b*sc.prb6_1)
+
+#alcohol effects
+SCI95_alc12b1<-c(alc12b1-tval.prb6_1a*sc.prb6_1, alc12b1+tval.prb6_1a*sc.prb6_1)
+SCI95_alc13b1<-c(alc13b1-tval.prb6_1a*sc.prb6_1, alc13b1+tval.prb6_1a*sc.prb6_1)
+SCI95_alc23b1<-c(alc23b1-tval.prb6_1a*sc.prb6_1, alc23b1+tval.prb6_1a*sc.prb6_1)
+SCI95_alc12b2<-c(alc12b2-tval.prb6_1a*sc.prb6_1, alc12b2+tval.prb6_1a*sc.prb6_1)
+SCI95_alc13b2<-c(alc13b2-tval.prb6_1a*sc.prb6_1, alc13b2+tval.prb6_1a*sc.prb6_1)
+SCI95_alc23b2<-c(alc23b2-tval.prb6_1a*sc.prb6_1, alc23b2+tval.prb6_1a*sc.prb6_1)
+
+###Part e)###
+##Residual analysis
+#Normal plot
+pqq.prb6_1<-plot(prb6_1.aov, 2)
+#Spread-Location plot
+psl.prb6_1<-plot(prb6_1.aov, 3)
+#Levene's Test
+#Levene Test (Median)
+lvne_test.prb6_1<-leveneTest(prb6_1.aov, center=median)
