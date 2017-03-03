@@ -23,7 +23,7 @@ prb5_1eg.tibble<-tibble(casting, tens_stren)
 prb5_1eg.aov<-aov(tens_stren~Error(casting))
 
 prb5_1eg.lm<-lm(tens_stren~casting, data = prb5_1eg.tibble)
-prb5_1eg.anova<-anova(prb5_1eg.lmer)
+prb5_1eg.anova<-anova(prb5_1eg.lm)
 
 
 ####Problem 5.1####
