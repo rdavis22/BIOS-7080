@@ -114,3 +114,9 @@ psl.prb6_1<-plot(prb6_1.aov, 3)
 #Levene's Test
 #Levene Test (Median)
 lvne_test.prb6_1<-leveneTest(prb6_1.aov, center=median)
+
+
+####Problem 6.2####
+###Data Input###
+#method for determining serumn glucose
+method<-factor(c(rep("Method 1", 9), rep("Method 2", 9)))
