@@ -120,3 +120,28 @@ lvne_test.prb6_1<-leveneTest(prb6_1.aov, center=median)
 ###Data Input###
 #method for determining serumn glucose
 method<-factor(c(rep("Method 1", 9), rep("Method 2", 9)))
+#pool of serum of glucose
+serum<-factor(c(rep(1, 3), rep(2, 3), rep(3, 3), rep(1, 3), rep(2, 3),
+                rep(3, 3)))
+#glucose level (mg/dL)
+glucose<-c(42.5, 43.3, 42.9, 138.4, 144.4, 142.7, 180.9, 180.5, 183.0, 39.8,
+           40.3, 41.2, 132.4, 132.4, 130.3, 176.8, 173.6, 174.9)
+
+#dataframe for problem 6.2
+prb6_2.tibble<-tibble(method, serum, glucose)
+
+###Part a)###
+#Anova
+prb6_2.aov<-aov(glucose~method*serum, data=prb6_2.tibble)
+
+#residuals
+prb6_2.res<-prb6_2.aov$residuals
+
+#spread-level plot
+prb6_2.slp<-spreadLevelPlot(prb6_2.aov)
+
+#levene Test
+lvne_test.prb6_2<-leveneTest(prb6_2.aov, center=median)
+
+###Part B)###
+#no transformation necessary (Levene's test for medians was not significant)
