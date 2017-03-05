@@ -253,7 +253,7 @@ Fcrit.prb6_3<-qf(0.95, dffabric.prb6_3*dftemp.prb6_3, dfresiduals.prb6_3)
 pval.prb6_3<-pf(Ffabtemp.prb6_3, dffabric.prb6_3*dftemp.prb6_3,
                 dfresiduals.prb6_3, lower.tail = F)
 
-###Part c)###
+###Parts c) and d)###
 ##partition sum of squares ANOVA 
 #Fabic (contrast)
 fabric.contr<-factor(c(1, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2, 2,
@@ -267,7 +267,35 @@ shrinkage.contr<-c(1.8, 2.1, 2.2, 2.4, 2.8, 3.2, 3.2, 3.6, 2.0, 2.1, 4.2, 4.0, 4
              9.8, 9.2, 13.2, 13.0, 10.9, 11.1)
 #dataframe for problem 6.3 (contrasts)
 prb6_3_contr.tibble<-tibble<-tibble(shrinkage.contr, temperature.contr, fabric.contr)
+#contrasts for temperature and fabric
+contrasts(prb6_3_contr.tibble$temperature.contr)<-contr.poly(4)
+contrasts(prb6_3_contr.tibble$fabric.contr)<-contr.poly(4)
+
 #ANOVA (w/ contrasts)
-prb6_3_contr.aov<-aov(shrinkage.contr~fabric.contr*temperature.contr, data=prb6_3_ord.tibble)
+prb6_3_contr.aov<-aov(shrinkage.contr~fabric.contr*temperature.contr, data=prb6_3_contr.tibble)
 #display ANOVA table with linear and quadratic contrasts
-summary.aov(prb6_3_ord.aov, split=list(temperature=list("Linear"=1, "Quadratic" = 2)))
+summary.aov(prb6_3_contr.aov, split=list(temperature.contr=list("Linear"=1, "Quadratic" = 2)))
+
+###Part e)###
+#Cell means for each fabric and temperature combination
+cellmu.prb6_3<-c(mean(shrinkage[1:2]), mean(shrinkage[3:4]), mean(shrinkage[5:6]),
+                 mean(shrinkage[7:8]), mean(shrinkage[9:10]), mean(shrinkage[11:12]),
+                 mean(shrinkage[13:14]), mean(shrinkage[15:16]), mean(shrinkage[17:18]),
+                 mean(shrinkage[19:20]), mean(shrinkage[21:22]), mean(shrinkage[23:24]),
+                 mean(shrinkage[25:26]), mean(shrinkage[27:28]), mean(shrinkage[29:30]),
+                 mean(shrinkage[31:32]))
+#fabric for cell means
+cellmufabric.prb6_3<-factor(c(rep(c(1, 2, 3, 4), 4)))
+#temperature for cell means
+cellmutemp.prb6_3<-factor(c(rep("210", 4), rep("215", 4), rep("220", 4),
+                            rep("225", 4)))
+prb6_3profplot.tibble<-tibble(cellmu.prb6_3, cellmufabric.prb6_3, cellmutemp.prb6_3)
+##Profile Plot
+#The "group" argument adds the lines between the points for the aesthetics
+profplt.prb6_3<-ggplot(data = prb6_3profplot.tibble,
+                       aes(x=cellmutemp.prb6_3 , y=cellmu.prb6_3,
+                           colour=cellmufabric.prb6_3, group=cellmufabric.prb6_3))+
+  geom_point()+
+  geom_line()+
+  labs(y="shrinkage", x="Temperature", title="Percent shrinkage vs. Temperature for four types of fabric",
+       legend="Fabric")
