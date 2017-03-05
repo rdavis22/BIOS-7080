@@ -145,3 +145,129 @@ lvne_test.prb6_2<-leveneTest(prb6_2.aov, center=median)
 
 ###Part B)###
 #no transformation necessary (Levene's test for medians was not significant)
+
+###Part C)###
+##Hypothesis test for interaction effect
+#degrees of freedom of method
+dfmeth.prb6_2<-summary(prb6_2.aov)[[1]][['Df']][1]
+#degrees of freedom of serum
+dfserum.prb6_2<-summary(prb6_2.aov)[[1]][['Df']][2]
+#degrees of freedom of Residuals
+dfresiduals.prb6_2<-summary(prb6_2.aov)[[1]][['Df']][4]
+#MSE for this ANOVA
+MSE.prb6_2<-summary(prb6_2.aov)[[1]][['Mean Sq']][4]
+#MS interaction for this ANOVA
+MSintrct.prb6_2<-summary(prb6_2.aov)[[1]][['Mean Sq']][3]
+#F statistic for interaction 
+FAB.prb6_2<-MSintrct.prb6_2/MSE.prb6_2
+#critical F value
+Fcrit.prb6_2<-qf(0.95, dfmeth.prb6_2*dfserum.prb6_2, dfresiduals.prb6_2)
+#p-value
+pval.prb6_2<-pf(FAB.prb6_2, dfmeth.prb6_2*dfserum.prb6_2,
+                dfresiduals.prb6_2, lower.tail = F)
+
+###Part D)###
+##Cell means
+cellmu.prb6_2<-c(mean(glucose[1:3]), mean(glucose[4:6]), mean(glucose[7:9]),
+                 mean(glucose[10:12]), mean(glucose[13:15]), mean(glucose[16:18]))
+##marginal means
+#methods
+methmu.prb6_2<-c(mean(glucose[1:9]), mean(glucose[10:18]))
+#glucose serum
+serummu.prb6_2<-c(mean(c(glucose[1:3], glucose[10:12])), mean(c(glucose[4:6], glucose[13:15])),
+                  mean(c(glucose[7:9], glucose[16:18])))
+#overall mean
+mu.prb6_2<-mean(glucose)
+
+#number of replications
+r.prb6_2<-length(glucose[1:3])
+#number of methods
+n.methods<-length(levels(method))
+#number of serums
+n.serum<-length(levels(serum))
+
+#standard error of the method
+semethod.prb6_2<-sqrt(MSE.prb6_2/(r.prb6_2*n.serum))
+#standard error of the serum
+seserum.prb6_2<-sqrt(MSE.prb6_2/(r.prb6_2*n.methods))
+#standard error of the cells
+secells.prb6_2<-sqrt(MSE.prb6_2/r.prb6_2)
+
+###Part E)###
+##Difference between method means for each level of glucose
+#glucose=1 (method=1-method=2)
+meth12glc1.prb6_2<-cellmu.prb6_2[1]-cellmu.prb6_2[4]
+#glucose=2
+meth12glc2.prb6_2<-cellmu.prb6_2[2]-cellmu.prb6_2[5]
+#glucose=3
+meth12glc3.prb6_2<-cellmu.prb6_2[3]-cellmu.prb6_2[6]
+
+##Multiple contrasts
+#standard error for multiple contrasts (mu1-mu2)
+sc.prb6_2<-sqrt((MSE.prb6_2/r.prb6_2)*(1^2+(-1)^2))
+#Bonferroni t-value for the standard error (alpha/2=0.975, k=3, v=ab(r-1)=12)
+tval.prb6_2<-2.56 #from table V in Kuehl
+
+#multiple contrast tests
+SCI95_meth12glc1<-c(meth12glc1.prb6_2-tval.prb6_2*sc.prb6_2, meth12glc1.prb6_2+tval.prb6_2*sc.prb6_2)
+SCI95_meth12glc2<-c(meth12glc2.prb6_2-tval.prb6_2*sc.prb6_2, meth12glc2.prb6_2+tval.prb6_2*sc.prb6_2)
+SCI95_meth12glc3<-c(meth12glc3.prb6_2-tval.prb6_2*sc.prb6_2, meth12glc3.prb6_2+tval.prb6_2*sc.prb6_2)
+
+
+####Problem 6.3####
+###Data Input###
+#Fabric
+fabric<-factor(c(1, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2, 2,
+                 3, 3, 4, 4, 1, 1, 2, 2, 3, 3, 4, 4))
+#temperature in Farenheit
+temperature<-factor(c(rep("210", 8), rep("215", 8), rep("220", 8),
+                      rep("225", 8)))
+#percent shrinkage in dying fabrics
+shrinkage<-c(1.8, 2.1, 2.2, 2.4, 2.8, 3.2, 3.2, 3.6, 2.0, 2.1, 4.2, 4.0, 4.4,
+             4.8, 3.3, 3.5, 4.6, 5.0, 5.4, 5.6, 8.7, 8.4, 5.7, 5.8, 7.5, 7.9,
+             9.8, 9.2, 13.2, 13.0, 10.9, 11.1)
+#data frame for prob. 3 data
+prb6_3.tibble<-tibble<-tibble(shrinkage, temperature, fabric)
+
+###Part a)###
+#Anova
+prb6_3.aov<-aov(shrinkage~fabric*temperature, data=prb6_3.tibble)
+
+###Part b)###
+##Hypothesis test for interaction effect between fabric*temperature
+#degrees of freedom of fabric
+dffabric.prb6_3<-summary(prb6_3.aov)[[1]][['Df']][1]
+#degrees of freedom of temperature
+dftemp.prb6_3<-summary(prb6_3.aov)[[1]][['Df']][2]
+#degrees of freedom of Residuals
+dfresiduals.prb6_3<-summary(prb6_3.aov)[[1]][['Df']][4]
+#MSE for this ANOVA
+MSE.prb6_3<-summary(prb6_3.aov)[[1]][['Mean Sq']][4]
+#MS interaction for this ANOVA
+MSintrct.prb6_3<-summary(prb6_3.aov)[[1]][['Mean Sq']][3]
+#F statistic for interaction 
+Ffabtemp.prb6_3<-MSintrct.prb6_3/MSE.prb6_3
+#critical F value
+Fcrit.prb6_3<-qf(0.95, dffabric.prb6_3*dftemp.prb6_3, dfresiduals.prb6_3)
+#p-value
+pval.prb6_3<-pf(Ffabtemp.prb6_3, dffabric.prb6_3*dftemp.prb6_3,
+                dfresiduals.prb6_3, lower.tail = F)
+
+###Part c)###
+##partition sum of squares ANOVA 
+#Fabic (contrast)
+fabric.contr<-factor(c(1, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2, 2,
+                 3, 3, 4, 4, 1, 1, 2, 2, 3, 3, 4, 4))
+#temperature in Farenheit (contrast)
+temperature.contr<-factor(c(rep("210", 8), rep("215", 8), rep("220", 8),
+                      rep("225", 8)))
+#percent shrinkage in dying fabrics (contrast)
+shrinkage.contr<-c(1.8, 2.1, 2.2, 2.4, 2.8, 3.2, 3.2, 3.6, 2.0, 2.1, 4.2, 4.0, 4.4,
+             4.8, 3.3, 3.5, 4.6, 5.0, 5.4, 5.6, 8.7, 8.4, 5.7, 5.8, 7.5, 7.9,
+             9.8, 9.2, 13.2, 13.0, 10.9, 11.1)
+#dataframe for problem 6.3 (contrasts)
+prb6_3_contr.tibble<-tibble<-tibble(shrinkage.contr, temperature.contr, fabric.contr)
+#ANOVA (w/ contrasts)
+prb6_3_contr.aov<-aov(shrinkage.contr~fabric.contr*temperature.contr, data=prb6_3_ord.tibble)
+#display ANOVA table with linear and quadratic contrasts
+summary.aov(prb6_3_ord.aov, split=list(temperature=list("Linear"=1, "Quadratic" = 2)))
