@@ -14,6 +14,10 @@ if(!require(lsmeans)){
   install.packages("lsmeans"); library(lsmeans)}
 if(!require(multcomp)){
   install.packages("multcomp"); library(multcomp)}
+if(!require(additivityTests)){
+  install.packages("additivityTests"); library(additivityTests)}
+if(!require(daewr)){
+  install.packages("daewr"); library(daewr)}
 
 ####Problem 1####
 ###Data Input###
@@ -202,3 +206,133 @@ glass<-factor(c(rep("1", 9), rep("2", 9), rep("3", 9)))
 temperature<-factor(c(rep(c("100", "125", "150"), 9)))
 #dataframe for prb3
 prb3.tibble<-tibble(y.prb3, glass, temperature)
+
+###Part b)###
+#model
+prb3.model<-y.prb3~glass*temperature
+#linear regression for Levene's Median Test
+prb3.lm<-lm(prb3.model, data=prb3.tibble)
+#Levene's Median Test
+prb3.levene<-leveneTest(prb3.lm, center=median)
+
+###Part c)###
+#ANOVA
+prb3.aov<-aov(prb3.model, data = prb3.tibble)
+#number of replications
+r.prb3<-length(temperature[temperature=="100" & glass=="1"])
+#MSE
+MSE.prb3<-summary(prb3.aov)[[1]][['Mean Sq']][4]
+
+###Part d)###
+##Glass type effects for temperature=100
+#Glass type 1 vs. 2
+gls12t100<-mean(y.prb3[temperature=="100"& glass=="1"])-mean(y.prb3[temperature=="100"& glass=="2"])
+#Glass type 1 vs. 3
+gls13t100<-mean(y.prb3[temperature=="100"& glass=="1"])-mean(y.prb3[temperature=="100"& glass=="3"])
+#Glass type 2 vs. 3
+gls23t100<-mean(y.prb3[temperature=="100"& glass=="2"])-mean(y.prb3[temperature=="100"& glass=="3"])
+
+#standard error for multiple contrasts (mu1-mu2)
+sc.prb3<-sqrt((MSE.prb3/r.prb3)*(1^2+(-1)^2))
+#Bonf. t-value for base effects (alpha/2=0.975, k=3, v=ab(r-1)=18) *from appendix V in Kuehl
+tval.prb3<-2.64  
+
+##Simultaneous Confidence Intervals for glass types for temperature=100
+SCI95_gls12t100<-c(gls12t100-tval.prb3*sc.prb3, gls12t100+tval.prb3*sc.prb3)
+SCI95_gls13t100<-c(gls13t100-tval.prb3*sc.prb3, gls13t100+tval.prb3*sc.prb3)
+SCI95_gls23t100<-c(gls23t100-tval.prb3*sc.prb3, gls23t100+tval.prb3*sc.prb3)
+
+
+####Problem 4####
+###Data Input###
+#thickness of the aluminum oxide layer (response)
+y.prb4<-c(125, 130, 128, 134, 143, 126, 150, 127, 124, 118, 130, 155, 168, 159, 138)
+#height position
+height<-factor(c(rep("1", 5), rep("2", 5), rep("3", 5)))
+#clamp position of the nickel rod
+clamp<-factor(c(rep(c("1", "2", "3", "4", "5"), 3)))
+
+#dataframe for problem 4
+prb4.tibble<-tibble(y.prb4, height, clamp)
+
+###Parts b) and c)###
+##ANOVA##
+prb4.aov<-aov(y.prb4~height*clamp, data = prb4.tibble)
+
+###Parts d) and e)###
+##Tukey Additivity Test and 1 df SS (daewr package)##
+t1df<-Tukey1df(data.frame(prb4.tibble))
+##Tukey Additivity Tests (additivtyTests package)##
+nickle.mat<-matrix(y.prb4, nrow=3, byrow = T)
+tukadd.prb4<-tukey.test(nickle.mat, alpha=0.05)
+
+
+####Problem 5####
+#Etch Rate (total)
+Total<-c(550, 669, 604, 650, 633, 642, 601, 635, 1037, 749, 1052, 868, 1075,
+             860, 1063, 729)
+names(Total)<-c("(1)","a","b","ab","c","ac","bc","abc", "d", "ad", "bd",
+                   "abd", "cd", "acd", "bcd", "abcd")
+###Factors###
+#anode-cathode gap
+A<-rep(c(-1, 1), 8)
+#Reactor Chamber
+B<-rep(c(-1, -1, 1, 1), 4)
+#C2F6 gas flow
+C<-rep(c(-1, -1, -1, -1, 1, 1, 1, 1), 2)
+#Power applied to the cathode
+D<-c(rep(-1, 8), rep(1, 8))
+
+#Matrix for the experiment
+prb6.mat<-cbind(Total, A, B, C, D)
+#number of replications
+n.prb5<-1
+#number of effects
+k.prb5<-4
+
+###Get Estimation of Effects###
+##Effect estimates of main effects ("%*%" is matrix multiplication)
+Aeff <- (Total %*% A)/(2^(k.prb5-1)*n.prb5)
+Beff <- (Total %*% B)/(2^(k.prb5-1)*n.prb5)
+Ceff <- (Total %*% C)/(2^(k.prb5-1)*n.prb5)
+Deff <- (Total %*% D)/(2^(k.prb5-1)*n.prb5)
+
+##Interaction effects
+#Two Factor interactions
+AB<-A*B
+AC<-A*C
+AD<-A*D
+BC<-B*C
+BD<-B*D
+CD<-C*D
+#Three Factor interactions
+ABC<-A*B*C
+ABD<-A*B*D
+ACD<-A*C*D
+BCD<-B*C*D
+#Four Factor interactions
+ABCD<-A*B*C*D
+
+#Two Factor Interaction Effects
+ABeff<-(Total %*% AB)/(2^(k.prb5-1)*n.prb5)
+ACeff<-(Total %*% AC)/(2^(k.prb5-1)*n.prb5)
+ADeff<-(Total %*% AD)/(2^(k.prb5-1)*n.prb5)
+BCeff<-(Total %*% BC)/(2^(k.prb5-1)*n.prb5)
+BDeff<-(Total %*% BD)/(2^(k.prb5-1)*n.prb5)
+CDeff<-(Total %*% CD)/(2^(k.prb5-1)*n.prb5)
+#Three Factor Interaction Effects
+ABCeff<-(Total %*% ABC)/(2^(k.prb5-1)*n.prb5)
+ABDeff<-(Total %*% ABD)/(2^(k.prb5-1)*n.prb5)
+ACDeff<-(Total %*% ACD)/(2^(k.prb5-1)*n.prb5)
+BCDeff<-(Total %*% BCD)/(2^(k.prb5-1)*n.prb5)
+#Four Factor Interaction Effects
+ABCDeff<-(Total %*% ABCD)/(2^(k.prb5-1)*n.prb5)
+
+##Effects matrix
+Effects<-t(Total)%*%cbind(A,B,C,D,AB,AC,AD,BC,BD,CD,ABC,ABD,ACD,BCD,ABCD)/
+  (2^(k.prb5-1)*n.prb5)
+Summary<-rbind(cbind(A,B,C,D,AB,AC,AD,BC,BD,CD,ABC,ABD,ACD,BCD,ABCD),Effects)
+#dimension names
+dimnames(Summary)[[1]]<-c(names(Total), "Effect")
+
+###ANOVA###
