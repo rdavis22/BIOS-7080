@@ -268,10 +268,11 @@ tukadd.prb4<-tukey.test(nickle.mat, alpha=0.05)
 
 
 ####Problem 5####
+###Part a and b)###
 #Etch Rate (total)
-Total<-c(550, 669, 604, 650, 633, 642, 601, 635, 1037, 749, 1052, 868, 1075,
+etch.rate<-c(550, 669, 604, 650, 633, 642, 601, 635, 1037, 749, 1052, 868, 1075,
              860, 1063, 729)
-names(Total)<-c("(1)","a","b","ab","c","ac","bc","abc", "d", "ad", "bd",
+names(etch.rate)<-c("(1)","a","b","ab","c","ac","bc","abc", "d", "ad", "bd",
                    "abd", "cd", "acd", "bcd", "abcd")
 ###Factors###
 #anode-cathode gap
@@ -284,7 +285,7 @@ C<-rep(c(-1, -1, -1, -1, 1, 1, 1, 1), 2)
 D<-c(rep(-1, 8), rep(1, 8))
 
 #Matrix for the experiment
-prb6.mat<-cbind(Total, A, B, C, D)
+prb6.mat<-cbind(etch.rate, A, B, C, D)
 #number of replications
 n.prb5<-1
 #number of effects
@@ -292,10 +293,10 @@ k.prb5<-4
 
 ###Get Estimation of Effects###
 ##Effect estimates of main effects ("%*%" is matrix multiplication)
-Aeff <- (Total %*% A)/(2^(k.prb5-1)*n.prb5)
-Beff <- (Total %*% B)/(2^(k.prb5-1)*n.prb5)
-Ceff <- (Total %*% C)/(2^(k.prb5-1)*n.prb5)
-Deff <- (Total %*% D)/(2^(k.prb5-1)*n.prb5)
+Aeff <- (etch.rate %*% A)/(2^(k.prb5-1)*n.prb5)
+Beff <- (etch.rate %*% B)/(2^(k.prb5-1)*n.prb5)
+Ceff <- (etch.rate %*% C)/(2^(k.prb5-1)*n.prb5)
+Deff <- (etch.rate %*% D)/(2^(k.prb5-1)*n.prb5)
 
 ##Interaction effects
 #Two Factor interactions
@@ -314,25 +315,74 @@ BCD<-B*C*D
 ABCD<-A*B*C*D
 
 #Two Factor Interaction Effects
-ABeff<-(Total %*% AB)/(2^(k.prb5-1)*n.prb5)
-ACeff<-(Total %*% AC)/(2^(k.prb5-1)*n.prb5)
-ADeff<-(Total %*% AD)/(2^(k.prb5-1)*n.prb5)
-BCeff<-(Total %*% BC)/(2^(k.prb5-1)*n.prb5)
-BDeff<-(Total %*% BD)/(2^(k.prb5-1)*n.prb5)
-CDeff<-(Total %*% CD)/(2^(k.prb5-1)*n.prb5)
+ABeff<-(etch.rate %*% AB)/(2^(k.prb5-1)*n.prb5)
+ACeff<-(etch.rate %*% AC)/(2^(k.prb5-1)*n.prb5)
+ADeff<-(etch.rate %*% AD)/(2^(k.prb5-1)*n.prb5)
+BCeff<-(etch.rate %*% BC)/(2^(k.prb5-1)*n.prb5)
+BDeff<-(etch.rate %*% BD)/(2^(k.prb5-1)*n.prb5)
+CDeff<-(etch.rate %*% CD)/(2^(k.prb5-1)*n.prb5)
 #Three Factor Interaction Effects
-ABCeff<-(Total %*% ABC)/(2^(k.prb5-1)*n.prb5)
-ABDeff<-(Total %*% ABD)/(2^(k.prb5-1)*n.prb5)
-ACDeff<-(Total %*% ACD)/(2^(k.prb5-1)*n.prb5)
-BCDeff<-(Total %*% BCD)/(2^(k.prb5-1)*n.prb5)
+ABCeff<-(etch.rate %*% ABC)/(2^(k.prb5-1)*n.prb5)
+ABDeff<-(etch.rate %*% ABD)/(2^(k.prb5-1)*n.prb5)
+ACDeff<-(etch.rate %*% ACD)/(2^(k.prb5-1)*n.prb5)
+BCDeff<-(etch.rate %*% BCD)/(2^(k.prb5-1)*n.prb5)
 #Four Factor Interaction Effects
-ABCDeff<-(Total %*% ABCD)/(2^(k.prb5-1)*n.prb5)
+ABCDeff<-(etch.rate %*% ABCD)/(2^(k.prb5-1)*n.prb5)
 
 ##Effects matrix
-Effects<-t(Total)%*%cbind(A,B,C,D,AB,AC,AD,BC,BD,CD,ABC,ABD,ACD,BCD,ABCD)/
+Effects<-t(etch.rate)%*%cbind(A,B,C,D,AB,AC,AD,BC,BD,CD,ABC,ABD,ACD,BCD,ABCD)/
   (2^(k.prb5-1)*n.prb5)
 Summary<-rbind(cbind(A,B,C,D,AB,AC,AD,BC,BD,CD,ABC,ABD,ACD,BCD,ABCD),Effects)
 #dimension names
-dimnames(Summary)[[1]]<-c(names(Total), "Effect")
+dimnames(Summary)[[1]]<-c(names(etch.rate), "Effect")
 
 ###ANOVA###
+##turn the main effects into factors
+Af<-as.factor(A)
+Bf<-as.factor(B)
+Cf<-as.factor(C)
+Df<-as.factor(D)
+options(contrasts=c("contr.sum","contr.poly"))
+#run a linear regression
+etch.lm<-lm(etch.rate ~ Af*Bf*Cf*Df)
+#ANOVa for the linear regression model to get the sum of squares
+prb5.anova<-anova(etch.lm)
+
+#% contribution of each SS
+perctSS<-c()
+#total sum of Squares
+totSS<-sum(prb5.anova$`Sum Sq`)
+for (i in 1:length(prb5.anova$`Sum Sq`)){
+  #take each sum of squares and divide by the total sum of squares
+  perctSS[i]<-(prb5.anova$`Sum Sq`[i]/totSS)*100
+}
+
+###Part c)###
+#3 maximum sum of squares
+max3SS<-sort(prb5.anova$`Sum Sq`)[14:16]
+#SS of Error
+SSError<-sum(prb5.anova$`Sum Sq`)-sum(max3SS)
+#DF for Error
+DFError<-(length(prb5.anova$`Sum Sq`)-length(max3SS)-1)
+#MSE of model (length of prb5.anova$'Sum Sq'-# of terms (3)-1)
+MSE<-SSError/DFError
+
+##F-value for each term
+#F value for A
+FA.prb5<-max3SS[1]/MSE
+#F critical value for A
+FcritA.prb5<-qf(0.95, 1, DFError)
+#pvalue for A
+pA.prb5<-pf(FA.prb5, 1, DFError, lower.tail = F)
+#F value for D
+FD.prb5<-max3SS[3]/MSE
+#F critical value for D
+FcritD.prb5<-qf(0.95, 1, DFError)
+#pvalue for D
+pD.prb5<-pf(FD.prb5, 1, DFError, lower.tail = F)
+#F value for AD
+FAD.prb5<-max3SS[2]/MSE
+#F critical value for AD
+FcritAD.prb5<-qf(0.95, 1, DFError)
+#pvalue for AD
+pAD.prb5<-pf(FAD.prb5, 1, DFError, lower.tail = F)
