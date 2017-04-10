@@ -369,3 +369,40 @@ F0_alloys<-MSalloys/MScastings
 Fcrit_alloys<-qf(0.95, 2, 9)
 #p value
 p_alloys<-pf(F0_alloys, 2, 9, lower.tail = F)
+
+###Part d)###
+##means and standard errors of alloys
+muA<-mean(tensile[alloys=="A"])
+muB<-mean(tensile[alloys=="B"])
+muC<-mean(tensile[alloys=="C"])
+sderrorA<-sd(tensile[alloys=="A"])/sqrt(length(tensile[alloys=="A"]))
+sderrorB<-sd(tensile[alloys=="B"])/sqrt(length(tensile[alloys=="B"]))
+sderrorC<-sd(tensile[alloys=="C"])/sqrt(length(tensile[alloys=="C"]))
+##95% CI
+E<-qt(0.975, df=length(tensile[alloys=="A"])-1)
+CI95_A<-c(muA-E*sderrorA, muA+E*sderrorA)
+CI95_B<-c(muB-E*sderrorB, muB+E*sderrorB)
+CI95_C<-c(muC-E*sderrorC, muC+E*sderrorC)
+
+
+####Problem 7.4####
+###Data Input###
+#traffic delay
+delay<-c(61.7, 57.4, 53.1, 36.5, 35.8, 18.5, 35.5, 15.9, 20.0, 24.6, 17.0, 21.0,
+         2.7, 3.1, 1.5, 1.1, 35.7, 26.8, 35.4, 20.7, 24.3, 25.9, 27.5, 23.3)
+#signal type
+signal<-factor(c(rep("Pretimed", 8), rep("Semi-actuated", 8),
+                 rep("Fully actuated", 8)))
+#intersection
+intersection<-factor(c(rep(1, 4), rep(2, 4), rep(3, 4), rep(4, 4), rep(5, 4),
+                       rep(6, 4)))
+#methods estimating time stopped at stop light
+method<-factor(c(rep(c("Point-Sample", "Point-Sample", "Path-Trace",
+                       "Path-Trace"), 6)))
+#time of day (rush hour or nonrush hour)
+time<-factor(rep(c("Rush", "Nonrush"), 12))
+
+###Dataframe for problem 7.4###
+prb7_4.tibble<-tibble(delay, signal, intersection, method, time)
+
+###Part d)###
