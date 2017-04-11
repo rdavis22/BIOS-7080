@@ -25,4 +25,13 @@ weight<-c(450, 469, 249, 125, 280, 352, 221, 251, 358, 512, 281, 58, 352, 293,
           239, 269, 357, 479, 341, 404, 115, 182, 349, 276, 182, 245, 380, 263,
           62, 336, 282, 171, 98)
 #method of irrgation treatment
-method<-factor(c(rep("Trickle", 8), rep("Basin", 8), rep("Spray")))
+method<-factor(c(rep("Trickle", 8), rep("Basin", 8), rep("Spray", 8),
+                 rep("Sprinkler", 8), rep("Sprinkler+Spray", 8), rep("Flood", 8)))
+#block
+block.prb8_1<-factor(rep(c(1, 2, 3, 4, 5, 6, 7, 8), 6))
+
+##Dataframe for prb 8.1##
+prb8_1.tibble<-tibble(weight, method, block.prb8_1)
+
+###Part a)###
+prb8_1.aov<-aov(weight~method+block.prb8_1, data=prb8_1.tibble)
