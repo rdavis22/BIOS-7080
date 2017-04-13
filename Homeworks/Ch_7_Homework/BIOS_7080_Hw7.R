@@ -408,17 +408,17 @@ prb7_4.tibble<-tibble(delay, signal, intersection, method, time)
 ###Part d)###
 ##ANOVA for point sample data
 #delay ("Point-Sample" Data)
-Y<-delay[method=="Point-Sample"]
+Y<-delay
 #time of day ("Point-Sample" Data)
-A<-time[method=="Point-Sample"]
+A<-time
 #signal type ("Point-Sample" Data)
-B<-signal[method=="Point-Sample"]
+B<-signal
 #intersection ("Point-Sample" Data)
-C<-intersection[method=="Point-Sample"]
-#model with C nested in B and crossed with A
+C<-intersection
+#model with C nested in B and crossed withA 
 prb7_4d.aov<-aov(Y~A*B*C%in%B, data = prb7_4.tibble)
 
 ###Part e)###
 ##ANOVA for full model with method variable
-prb7_4g.aov<-aov(delay~Error(method*time*signal/intersection),
-                 data=prb7_4.tibble)
+prb7_4g.aov<-aov(delay~signal+intersection%in%signal+method+
+                   time%in%method+signal*method,data=prb7_4.tibble)
