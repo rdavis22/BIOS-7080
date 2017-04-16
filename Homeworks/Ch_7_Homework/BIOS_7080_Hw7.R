@@ -418,7 +418,79 @@ C<-intersection
 #model with C nested in B and crossed withA 
 prb7_4d.aov<-aov(Y~A*B*C%in%B, data = prb7_4.tibble)
 
-###Part e)###
+##Hypothesis Testing##
+#Degrees of Freedom#
+DfA<-summary(prb7_4d.aov)[[1]][['Df']][1]
+DfB<-summary(prb7_4d.aov)[[1]][['Df']][2]
+DfAB<-summary(prb7_4d.aov)[[1]][['Df']][3]
+DfBC<-summary(prb7_4d.aov)[[1]][['Df']][4]
+DfABC<-summary(prb7_4d.aov)[[1]][['Df']][5]
+DfRes<-summary(prb7_4d.aov)[[1]][['Df']][6]
+#Mean Squares
+MSA<-summary(prb7_4d.aov)[[1]][['Mean Sq']][1]
+MSB<-summary(prb7_4d.aov)[[1]][['Mean Sq']][2]
+MSAB<-summary(prb7_4d.aov)[[1]][['Mean Sq']][3]
+MSBC<-summary(prb7_4d.aov)[[1]][['Mean Sq']][4]
+MSABC<-summary(prb7_4d.aov)[[1]][['Mean Sq']][5]
+MSRes<-summary(prb7_4d.aov)[[1]][['Mean Sq']][6]
+#Hypothesis tests
+F0_A<-MSA/MSABC #test for "A"
+Fcrit_A<-qf(0.95, DfA, DfABC)
+pA<-pf(F0_A, DfA, DfABC, lower.tail = F)
+
+F0_B<-MSB/MSBC #test for "B"
+Fcrit_B<-qf(0.95, DfB, DfBC)
+pB<-pf(F0_B, DfB, DfBC, lower.tail = F)
+
+F0_AB<-MSAB/MSABC #test for "AB"
+Fcrit_AB<-qf(0.95, DfAB, DfABC)
+pAB<-pf(F0_AB, DfAB, DfABC, lower.tail = F)
+
+F0_BC<-MSBC/MSABC #test for "C/B"
+Fcrit_BC<-qf(0.95, DfBC, DfABC)
+pBC<-pf(F0_BC, DfBC, DfABC, lower.tail = F)
+
+F0_ABC<-MSABC/MSRes #test for "AC/B"
+Fcrit_ABC<-qf(0.95, DfABC, DfRes)
+pABC<-pf(F0_ABC, DfABC, DfRes, lower.tail = F)
+
+###Part e-g)###
 ##ANOVA for full model with method variable
-prb7_4g.aov<-aov(delay~signal+intersection%in%signal+method+
+prb7_4g.aov<-aov(delay~signal+method+intersection%in%signal+
                    time%in%method+signal*method,data=prb7_4.tibble)
+
+##Hypothesis Testing##
+#Degrees of Freedom#
+DfA.prb7_4g<-summary(prb7_4g.aov)[[1]][['Df']][1]
+DfB.prb7_4g<-summary(prb7_4g.aov)[[1]][['Df']][2]
+DfC_A.prb7_4g<-summary(prb7_4g.aov)[[1]][['Df']][3]
+DfD_B.prb7_4g<-summary(prb7_4g.aov)[[1]][['Df']][4]
+DfAB.prb7_4g<-summary(prb7_4g.aov)[[1]][['Df']][5]
+DfRes.prb7_4g<-summary(prb7_4g.aov)[[1]][['Df']][6]
+#Mean Squares
+MSA.prb7_4g<-summary(prb7_4g.aov)[[1]][['Mean Sq']][1]
+MSB.prb7_4g<-summary(prb7_4g.aov)[[1]][['Mean Sq']][2]
+MSC_A.prb7_4g<-summary(prb7_4g.aov)[[1]][['Mean Sq']][3]
+MSD_B.prb7_4g<-summary(prb7_4g.aov)[[1]][['Mean Sq']][4]
+MSAB.prb7_4g<-summary(prb7_4g.aov)[[1]][['Mean Sq']][5]
+MSRes.prb7_4g<-summary(prb7_4g.aov)[[1]][['Mean Sq']][6]
+#Hypothesis tests
+F0_A.prb7_4g<-MSA.prb7_4g/MSAB.prb7_4g #test for "A" (signal)
+Fcrit_A.prb7_4g<-qf(0.95, DfA.prb7_4g, DfAB.prb7_4g)
+pA.prb7_4g<-pf(F0_A.prb7_4g, DfA.prb7_4g, DfAB.prb7_4g, lower.tail = F)
+
+F0_B.prb7_4g<-MSB.prb7_4g/MSAB.prb7_4g #test for "B" (method)
+Fcrit_B.prb7_4g<-qf(0.95, DfB.prb7_4g, DfAB.prb7_4g)
+pB.prb7_4g<-pf(F0_B.prb7_4g, DfB.prb7_4g, DfAB.prb7_4g, lower.tail = F)
+
+F0_C_A.prb7_4g<-MSC_A.prb7_4g/MSAB.prb7_4g #test for "C/A" (intersection nested in signal)
+Fcrit_C_A.prb7_4g<-qf(0.95, DfC_A.prb7_4g, DfAB.prb7_4g)
+pC_A.prb7_4g<-pf(F0_C_A.prb7_4g, DfC_A.prb7_4g, DfAB.prb7_4g, lower.tail = F)
+
+F0_D_B.prb7_4g<-MSD_B.prb7_4g/MSAB.prb7_4g #test for "D/A" (time nested in method)
+Fcrit_D_B.prb7_4g<-qf(0.95, DfD_B.prb7_4g, DfAB.prb7_4g)
+pD_B.prb7_4g<-pf(F0_D_B.prb7_4g, DfD_B.prb7_4g, DfAB.prb7_4g, lower.tail = F)
+
+F0_AB.prb7_4g<-MSAB.prb7_4g/MSRes.prb7_4g #test for "AB" (interaction)
+Fcrit_AB.prb7_4g<-qf(0.95, DfAB.prb7_4g, DfRes.prb7_4g)
+pAB.prb7_4g<-pf(F0_AB.prb7_4g, DfAB.prb7_4g, DfRes.prb7_4g, lower.tail = F)
