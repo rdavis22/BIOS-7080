@@ -212,3 +212,39 @@ corrRE.prb8_2<-corrfactor.prb8_2*uncorrRE.prb8_2
 ###Part e)###
 #Residual Plot
 plot(prb8_2.aov, 1)
+
+
+####Problem 8.4####
+###Data Input###
+#total unused redlight time
+URLtime<-c(15.2, 33.8, 13.5, 27.4, 29.1, 16.5, 26.5, 19.2, 25.8, 22.7, 12.1,
+           31.4, 17.0, 31.5, 30.2, 10.7, 34.2, 19.5, 27.2, 21.6, 14.6, 31.7,
+           16.7, 26.3, 23.8)
+#intersection
+intersection<-factor(c(rep(1, 5), rep(2, 5), rep(3, 5), rep(4, 5), rep(5, 5)))
+#time period
+period<-factor(c(rep(c(1, 2, 3, 4, 5), 5)))
+#signal sequence treatments for the red lights
+treatment.prb8_4<-factor(c("A", "B", "C", "D", "E", "B", "C", "D", "E", "A",
+                           "C", "D", "E", "A", "B", "D", "E", "A", "B", "C",
+                           "E", "A", "B", "C", "D"))
+
+#DataFrame for problem 8.4
+prb8_4.tibble<-tibble(URLtime, intersection, period, treatment.prb8_4)
+
+###Part a)###
+##ANOVA##
+prb8_4.aov<-aov(URLtime~intersection+period+treatment.prb8_4, data = prb8_4.tibble)
+#MSE
+MSE.prb8_4<-summary(prb8_4.aov)[[1]][['Mean Sq']][4]
+#number of replications
+r.prb8_4<-length(levels(period))
+#number of treatments
+t.prb8_4<-length(levels(treatment.prb8_4))
+
+###Part b)###
+##Standard Errors
+#Standard error for signal sequence treatment mean
+se_y_k<-sqrt(MSE.prb8_4/t.prb8_4)
+#Standard error for difference between signal sequence treatment mean
+se_diffy_k<-sqrt(2*MSE.prb8_4/t.prb8_4)
