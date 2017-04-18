@@ -126,20 +126,21 @@ fc_crit.prb8_2<-(qf(0.95, 1, DfRes.prb8_2))
 # #contrast 2: main effect of nitrogen<-c(0, -1, 1, -1, 1)
 # #contrast 3: main effect of phosphorus<-c(0, -1, -1, 1, 1)
 # #contrast 4: interaction<-c(0, 1, -1, -1, 1)
-# mat<-matrix(c(c(1/5, 1/5, 1/5, 1/5, 1/5), c(1, -1/4, -1/4, -1/4, -1/4),
-#             c(0, -1, 1, -1, 1), c(0, -1, -1, 1, 1), c(0, 1, -1, -1, 1)), ncol=5)
-# #transpose and get the inverse
-# mymat=solve(t(mat))
-# # remove the intercept
-# my.contrasts<-mymat[,2:5]
-# #apply the contrasts to the fertilizer treatment variable
-# contrasts(prb8_2.tibble$treatment.prb8_2)=my.contrasts
-# #get a new anova with the contrasts
-# mod.prb8_2<-aov(phosphorus~treatment.prb8_2+block.prb8_2, data=prb8_2.tibble)
-# #display the contrasts by calling the following in the console:
-# #summary(mod.prb8_2, split=list(treatment.prb8_2=list(NoTrt=1, N2Main=2, PhosMain=3, Intrct=4)))
+mat<-matrix(c(c(1/5, 1/5, 1/5, 1/5, 1/5), c(1, -1/4, -1/4, -1/4, -1/4),
+             c(0, -1, 1, -1, 1), c(0, -1, -1, 1, 1), c(0, 1, -1, -1, 1)), ncol=5)
+#transpose and get the inverse
+mymat=solve(t(mat))
+# remove the intercept
+my.contrasts<-mymat[,2:5]
+#apply the contrasts to the fertilizer treatment variable
+contrasts(prb8_2.tibble$treatment.prb8_2)=my.contrasts
+#get a new anova with the contrasts
+mod.prb8_2<-aov(phosphorus~treatment.prb8_2+block.prb8_2, data=prb8_2.tibble)
+#display the contrasts by calling the following in the console:
+summary(mod.prb8_2, split=list(treatment.prb8_2=list(NoTrt=1, N2Main=2, PhosMain=3, Intrct=4)))
 
-##contrast 1: "No fertilizer" vs. all other treatments<-c(1, -1/4, -1/4, -1/4, -1/4
+##Alternate Method##
+#contrast 1: "No fertilizer" vs. all other treatments<-c(1, -1/4, -1/4, -1/4, -1/4
 C_1<-mean(phosphorus[treatment.prb8_2=="No fertilizer"])-
   0.25*mean(phosphorus[treatment.prb8_2=="50 lb. N2"])-
   0.25*mean(phosphorus[treatment.prb8_2=="100 lb. N2"])-
@@ -248,3 +249,5 @@ t.prb8_4<-length(levels(treatment.prb8_4))
 se_y_k<-sqrt(MSE.prb8_4/t.prb8_4)
 #Standard error for difference between signal sequence treatment mean
 se_diffy_k<-sqrt(2*MSE.prb8_4/t.prb8_4)
+
+###Part c)###
