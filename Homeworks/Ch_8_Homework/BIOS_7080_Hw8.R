@@ -85,8 +85,12 @@ corrfactor.prb8_1<-((Dfrcb.prb8_1+1)*(Dfcr.prb8_1+3))/((Dfrcb.prb8_1+3)*(Dfcr.pr
 corrRE.prb8_1<-corrfactor.prb8_1*uncorrRE.prb8_1
 
 ###Part f)###
-#Residual Plot
+#Residuals vs. Fitted values
 plot(prb8_1.aov, 1)
+#Normal (Q-Q) Plot
+plot(prb8_1.aov, 2)
+#Spread-Location Plot
+plot(prb8_1.aov, 3)
 
 
 ####Problem 8.2####
@@ -211,8 +215,13 @@ corrfactor.prb8_2<-((Dfrcb.prb8_2+1)*(Dfcr.prb8_2+3))/((Dfrcb.prb8_2+3)*(Dfcr.pr
 corrRE.prb8_2<-corrfactor.prb8_2*uncorrRE.prb8_2
 
 ###Part e)###
-#Residual Plot
+##Residual Plots
+#Residuals vs. Fitted values
 plot(prb8_2.aov, 1)
+#Normal (Q-Q) Plot
+plot(prb8_2.aov, 2)
+#Spread-Location Plot
+plot(prb8_2.aov, 3)
 
 
 ####Problem 8.4####
@@ -251,3 +260,131 @@ se_y_k<-sqrt(MSE.prb8_4/t.prb8_4)
 se_diffy_k<-sqrt(2*MSE.prb8_4/t.prb8_4)
 
 ###Part c)###
+##Multiple Comparison Test with Best (i.e. "MCB")
+##mean unusued red light time for each treatment
+mu_vec<-c(
+  #A
+  mu_A.prb8_4<-mean(URLtime[treatment.prb8_4=="A"]),
+  #B
+  mu_B.prb8_4<-mean(URLtime[treatment.prb8_4=="B"]),
+  #C
+  mu_C.prb8_4<-mean(URLtime[treatment.prb8_4=="C"]),
+  #D
+  mu_D.prb8_4<-mean(URLtime[treatment.prb8_4=="D"]),
+  #E
+  mu_E.prb8_4<-mean(URLtime[treatment.prb8_4=="E"])
+)
+#get the minimum sample mean (in this case, treatment B is maximal)
+
+##Method 1##
+#The mean of group B is the maximum value
+D_AC<-mu_A.prb8_4-mu_C.prb8_4
+D_BC<-mu_B.prb8_4-mu_C.prb8_4
+D_DC<-mu_D.prb8_4-mu_C.prb8_4
+D_EC<-mu_E.prb8_4-mu_C.prb8_4
+D_CD<-mu_C.prb8_4-mu_D.prb8_4
+
+#d(alpha=0.05, k=4 (t-1), v=12, one-sided)=2.41 #Appendix VI
+d.prb8_4<-2.41
+#get the 'M' value for MCB procedure
+M.prb8_4<-d.prb8_4*sqrt(2*MSE.prb8_4/r.prb8_4)
+
+#95%CI for treatment means
+CI95_A<-c(D_AC-M.prb8_4, D_AC+M.prb8_4)
+CI95_B<-c(D_BC-M.prb8_4, D_BC+M.prb8_4)
+CI95_C<-c(D_CD-M.prb8_4, D_CD+M.prb8_4)
+CI95_D<-c(D_DC-M.prb8_4, D_DC+M.prb8_4)
+CI95_E<-c(D_EC-M.prb8_4, D_EC+M.prb8_4)
+
+#95% Simultaneous CI for treatment means
+SCI95_A<-c(0, D_AC+M.prb8_4)
+SCI95_B<-c(0, D_BC+M.prb8_4)
+SCI95_C<-c(D_CD-M.prb8_4, 0)
+SCI95_D<-c(D_DC-M.prb8_4, 0)
+SCI95_E<-c(D_EC-M.prb8_4, 0)
+
+###Part d)###
+##Relative efficiency of "Time period" (i.e. period) blocking
+#MS of "period" column block
+MSperiod<-summary(prb8_4.aov)[[1]][['Mean Sq']][2]
+#Residual Df for LS Design
+Dfls.prb8_4<-summary(prb8_4.aov)[[1]][['Df']][4]
+#Residual Df for RCB Design
+Dfrcb.prb8_4<-summary(aov(URLtime~treatment.prb8_4+intersection))[[1]][['Df']][3]
+#estimated variance of complete randomized design
+s2_rcb.prb8_4<-(MSperiod+(t.prb8_4-1)*MSE.prb8_4)/(t.prb8_4)
+
+#Uncorrected RE
+uncorrRE.prb8_4<-s2_rcb.prb8_4/MSE.prb8_4
+
+#Corrected RE
+corrfactor.prb8_4<-((Dfls.prb8_4+1)*(Dfrcb.prb8_4+3))/((Dfls.prb8_4+3)*(Dfrcb.prb8_4+1)) #correction factor
+corrRE.prb8_4<-corrfactor.prb8_4*uncorrRE.prb8_4
+
+###Part e)###
+#Residuals vs. Fitted values
+plot(prb8_4.aov, 1)
+#Normal (Q-Q) Plot
+plot(prb8_4.aov, 2)
+#Spread-Location Plot
+plot(prb8_4.aov, 3)
+
+
+####Problem 8.5####
+###Data Input###
+#construction times in minutes
+minutes<-c(90, 96, 84, 88, 90, 91, 96, 88, 89, 97, 98, 98, 104, 100, 104, 106)
+#time period
+period.prb8_5<-factor(c(rep(1, 4), rep(2, 4), rep(3, 4), rep(4, 4)))
+#technician used in construction of electronic component
+technician<-factor(rep(c(1, 2, 3, 4), 4))
+#four construction methods
+method.prb8_5<-factor(c("C", "D", "A", "B", "B", "C", "D", "A", "A", "B", "C",
+                        "D", "D", "A", "B", "C"))
+
+##Dataframe
+prb8_5.tibble<-tibble(minutes, period.prb8_5, technician, method.prb8_5)
+
+###Part a)###
+prb8_5.aov<-aov(minutes~period.prb8_5+technician+method.prb8_5)
+
+#MSE
+MSE.prb8_5<-summary(prb8_5.aov)[[1]][['Mean Sq']][4]
+#number of replications
+r.prb8_5<-length(levels(technician))
+#number of treatments
+t.prb8_5<-length(levels(method.prb8_5))
+
+###Part b)###
+##Standard Errors
+#Standard error for construction method mean
+se_y_k.prb8_5<-sqrt(MSE.prb8_5/t.prb8_5)
+#Standard error for difference between two construction method means
+se_diffy_k.prb8_5<-sqrt(2*MSE.prb8_5/t.prb8_5)
+
+###Part c)###
+##Multiple Comparison test using Tukey Test
+#Method 1): "TukeyHSD" function
+TukHSD.prb8_5<-TukeyHSD(prb8_5.aov)$method.prb8_5
+
+#Method 2): "glht" method
+prb8_5.glht<-glht(prb8_5.aov, linfct = mcp(method.prb8_5 ="Tukey"))
+SCI95_glht.prb8_5<-confint(prb8_5.glht)
+
+###Part d)###
+##Relative efficiency of "Time period" (i.e. period) blocking
+#MS of "period" column block
+MSperiod.prb8_5<-summary(prb8_5.aov)[[1]][['Mean Sq']][1]
+#Residual Df for LS Design
+Dfls.prb8_5<-summary(prb8_5.aov)[[1]][['Df']][4]
+#Residual Df for RCB Design w/o "Time period" block
+Dfrcb.prb8_5<-summary(aov(minutes~technician+method.prb8_5))[[1]][['Df']][3]
+#estimated variance of complete randomized design
+s2_rcb.prb8_5<-(MSperiod.prb8_5+(t.prb8_5-1)*MSE.prb8_5)/(t.prb8_5)
+
+#Uncorrected RE
+uncorrRE.prb8_5<-s2_rcb.prb8_5/MSE.prb8_5
+
+#Corrected RE
+corrfactor.prb8_5<-((Dfls.prb8_5+1)*(Dfrcb.prb8_5+3))/((Dfls.prb8_5+3)*(Dfrcb.prb8_5+1)) #correction factor
+corrRE.prb8_5<-corrfactor.prb8_5*uncorrRE.prb8_5
