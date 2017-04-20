@@ -388,3 +388,37 @@ uncorrRE.prb8_5<-s2_rcb.prb8_5/MSE.prb8_5
 #Corrected RE
 corrfactor.prb8_5<-((Dfls.prb8_5+1)*(Dfrcb.prb8_5+3))/((Dfls.prb8_5+3)*(Dfrcb.prb8_5+1)) #correction factor
 corrRE.prb8_5<-corrfactor.prb8_5*uncorrRE.prb8_5
+
+
+####Problem 8.8####
+###Data input###
+#%percent 15N taken up by sweet corn plants
+N15<-c(21.4, 50.8, 53.2, 54.8, 56.9, 57.7, 11.3, 42.7, 44.8, 47.9, 46.8,
+          54.0, 34.9, 61.8, 57.8, 40.1, 57.9, 62.0)
+#timing of nitrogen application
+timing<-factor(rep(c("Early", "Optimum", "Late"), 6))
+#nitrogen inhibitor
+inhibitor<-factor(rep(c("None", "None", "None", ".5lb/acre", ".5lb/acre",
+                        ".5lb/acre"), 3))
+#block
+block.prb8_8<-factor(c(rep(1, 6), rep(2, 6), rep(3, 6)))
+#Dataframe for problem 8.8
+prb8_8.tibble<-tibble(N15, block.prb8_8, timing, inhibitor)
+
+###Part a)###
+##ANOVA##
+prb8_8.aov<-aov(N15~block.prb8_8+timing*inhibitor, data=prb8_8.tibble)
+
+#MSE for problem 8.8
+MSE.prb8_8<-summary(prb8_8.aov)[[1]][['Mean Sq']][5]
+#number of replications
+r.prb8_8<-length(levels(block.prb8_8))
+#number of treatments
+t.prb8_8<-length(levels(inhibitor))*length(levels(timing))
+
+###Part b)###
+##Standard Errors
+#Standard error for construction method mean
+se_y_k.prb8_8<-sqrt(MSE.prb8_8/t.prb8_8)
+#Standard error for difference between two construction method means
+se_diffy_k.prb8_8<-sqrt(2*MSE.prb8_8/t.prb8_8)
