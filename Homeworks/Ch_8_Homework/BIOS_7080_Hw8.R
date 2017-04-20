@@ -409,16 +409,80 @@ prb8_8.tibble<-tibble(N15, block.prb8_8, timing, inhibitor)
 ##ANOVA##
 prb8_8.aov<-aov(N15~block.prb8_8+timing*inhibitor, data=prb8_8.tibble)
 
+##Other important values
 #MSE for problem 8.8
 MSE.prb8_8<-summary(prb8_8.aov)[[1]][['Mean Sq']][5]
+#Mean Square timing
+MStiming.prb8_8<-summary(prb8_8.aov)[[1]][['Mean Sq']][2]
+#Mean Square inhibitor
+MSinhibitor.prb8_8<-summary(prb8_8.aov)[[1]][['Mean Sq']][3]
+#Mean Square interaction
+MSintrct.prb8_8<-summary(prb8_8.aov)[[1]][['Mean Sq']][4]
+#Degrees of Freedom
+DFtiming<-summary(prb8_8.aov)[[1]][['Df']][2]
+DFinhibitor<-summary(prb8_8.aov)[[1]][['Df']][3]
+DFintrct<-summary(prb8_8.aov)[[1]][['Df']][4]
+DFError<-summary(prb8_8.aov)[[1]][['Df']][5]
 #number of replications
 r.prb8_8<-length(levels(block.prb8_8))
-#number of treatments
-t.prb8_8<-length(levels(inhibitor))*length(levels(timing))
+#number of timing treatments
+a.prb8_8<-length(levels(timing))
+#number of inihbitor treatments
+b.prb8_8<-length(levels(inhibitor))
+#number of treatments for the corn plost
+t.prb8_8<-a.prb8_8*b.prb8_8
 
 ###Part b)###
 ##Standard Errors
-#Standard error for construction method mean
-se_y_k.prb8_8<-sqrt(MSE.prb8_8/t.prb8_8)
-#Standard error for difference between two construction method means
-se_diffy_k.prb8_8<-sqrt(2*MSE.prb8_8/t.prb8_8)
+#Standard error for marginal means for inhibitor 
+se_inhibitor.prb8_8<-sqrt(MSE.prb8_8/r.prb8_8*a.prb8_8)
+#Standard error for marginal means for timing
+se_timing.prb8_8<-sqrt(2*MSE.prb8_8/r.prb8_8*b.prb8_8)
+
+##cell means for N15 for each nitrogen inhibitor and timing combination
+cellmu_i1t1<-mean(N15[inhibitor=="None"& timing=="Early"])
+cellmu_i1t2<-mean(N15[inhibitor=="None"& timing=="Optimum"])
+cellmu_i1t3<-mean(N15[inhibitor=="None"& timing=="Late"])
+cellmu_i2t1<-mean(N15[inhibitor==".5lb/acre"& timing=="Early"])
+cellmu_i2t2<-mean(N15[inhibitor==".5lb/acre"& timing=="Optimum"])
+cellmu_i2t3<-mean(N15[inhibitor==".5lb/acre"& timing=="Late"])
+
+###Part c)###
+##Hypothesis testing##
+#timing factor
+F0_timing<-MStiming.prb8_8/MSE.prb8_8
+Fcrit_timing<-qf(0.95, DFtiming, DFError)
+pval_timing<-pf(F0_timing, DFtiming, DFError, lower.tail = F)
+
+#inhibitor factor
+F0_inhibitor<-MSinhibitor.prb8_8/MSE.prb8_8
+Fcrit_inhibitor<-qf(0.95, DFinhibitor, DFError)
+pval_inhibitor<-pf(F0_inhibitor, DFinhibitor, DFError, lower.tail = F)
+
+#interaction factor
+F0_intrct<-MSintrct.prb8_8/MSE.prb8_8
+Fcrit_intrct<-qf(0.95, DFintrct, DFError)
+pval_intrct<-pf(F0_intrct, DFintrct, DFError, lower.tail = F)
+
+###Part d)###
+#sum of square of the block design
+SSblock.prb8_8<-summary(prb8_8.aov)[[1]][['Sum Sq']][1]
+#Residual Df for RCB
+Dfrcb.prb8_8<-summary(prb8_8.aov)[[1]][['Df']][5]
+#Residual Df for CR
+Dfcr.prb8_8<-summary(aov(N15~timing+inhibitor+timing:inhibitor))[[1]][['Df']][4]
+#estimated variance of complete randomized design
+s2_cr.prb8_8<-(SSblock.prb8_8+r.prb8_8*(t.prb8_8-1)*MSE.prb8_8)/(r.prb8_8*t.prb8_8-1)
+
+#Uncorrected RE
+uncorrRE.prb8_8<-s2_cr.prb8_8/MSE.prb8_8
+
+#Corrected RE
+corrfactor.prb8_8<-((Dfrcb.prb8_8+1)*(Dfcr.prb8_8+3))/((Dfrcb.prb8_8+3)*(Dfcr.prb8_8+1)) #correction factor
+corrRE.prb8_8<-corrfactor.prb8_8*uncorrRE.prb8_8
+
+###Part e)###
+##Residual Plots
+plot(prb8_8.aov, 1)
+plot(prb8_8.aov, 2)
+plot(prb8_8.aov, 3)
