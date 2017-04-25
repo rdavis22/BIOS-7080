@@ -172,10 +172,48 @@ REwhol.prb14_1<-Kwhol.prb14_1*((a.prb14_1*(b.prb14_1-1)*MSE2.prb14_1)
                              +(a.prb14_1-1)*MSE1.prb14_1)/((a.prb14_1*b.prb14_1-1)*MSE1.prb14_1)
 
 ###Part f)###
-#get the contrasts
-mat<-matrix(c(c(1/4, 1/4, 1/4, 1/4), c(-0.546, -0.327, 0.109, 0.764),
-              c(0.5`3`, -1, 1, -1, 1), c(0, -1, -1, 1, 1)), ncol=5)
+##get the contrasts
+#contrast matrix
+mat.14_1<-matrix(c(c(1/4, 1/4, 1/4, 1/4), c(-0.546, -0.327, 0.109, 0.764),
+              c(0.513, -0.171, -0.741, 0.399), c(-0.435, 0.783, -0.435, 0.087)), ncol=4)
+#transpose and get the inverse
+mymat.prb14_1<-solve(t(mat.14_1))
+#remove the intercept
+mycontrasts.prb14_1<-mymat.prb14_1[,2:4]
+#apply the contrasts to the "plants" treatment variable
+contrasts(prb14_1.tibble$plants)<-mycontrasts.prb14_1
 
-#contrast ANOVA
+##contrast ANOVA
+#ANOVA model
 prb14_1contr.aov<-aov(weights~plants*hybrid+Error(block/plants), data = prb14_1.tibble)
-summary.aov(prb14_1contr.aov,split=list(plants=list("Linear"=1, "Quadratic" = 2, "Cubic"=3)))
+#partition sum of squares for the main effect of 'plants' and its interaction with 'hybrid'
+summary(prb14_1contr.aov, split=list(plants=list("Linear"=1, "Quadratic" = 2, "Cubic"=3),
+                                     `plants:hybrid`=list("Linear"=c(1,4), "Quadratic"=c(2,5), "Cubic"=c(3,6))))
+
+#***NOTE!!!: The 2DF partitiion sum of squares for the interaction must contain...
+#...the correct terms! Use a vector in the 'split' argument of 'summary.aov'...
+#...to get the correct partition SS for the interaction based on the contrast matrix...
+#E.g. since there are six terms in the interaction (i.e. plants=Linear, plants=Quadratic,...
+#...plants=Cubic, hybrid=Linear, hybrid=Quadratic, hybrid=Cubic), the vector in the...
+#'split' argument must contain the appropriate contrasts for each interaction term...
+#'#(i.e. "Linear" must contain linear components (i.e. 1, 4), "Quadratic" must...
+#'#contain quadratic component (2, 5))
+
+##Profile Plot## (based off the cell and marginal means table)
+#get a vector of the cell means
+celmu14_1.vec<-unlist(celmu.list)
+#get a vector of the plant population densities to match the cell means
+plants.vec<-factor(rep(c("10", "15", "25", "40"), 3))
+#get a vector of the hybrdis to match the cell means
+hybrids.vec<-factor(c(rep("TAM 680", 4), rep("RS 671", 4), rep("Tx 399*Tx2536", 4)))
+#dataframe for the profile plot
+prb14_1profplot.tibble<-tibble(celmu14_1.vec, plants.vec, hybrids.vec)
+
+#Prof. Plot
+profplt.prb14_1<-ggplot(data = prb14_1profplot.tibble,
+                       aes(x=plants.vec , y=celmu14_1.vec,
+                           colour=hybrids.vec, group=hybrids.vec))+
+  geom_point()+
+  geom_line()+
+  labs(y="Head Seed weight (g)", x="Plant Pop. Density", title="Head See weight (g) vs. Plant Pop. Density for three types of Plant Hybrids",
+       legend="Plant Hybrids")
