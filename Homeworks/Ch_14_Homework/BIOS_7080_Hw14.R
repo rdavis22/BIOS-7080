@@ -217,3 +217,171 @@ profplt.prb14_1<-ggplot(data = prb14_1profplot.tibble,
   geom_line()+
   labs(y="Head Seed weight (g)", x="Plant Pop. Density", title="Head See weight (g) vs. Plant Pop. Density for three types of Plant Hybrids",
        legend="Plant Hybrids")
+
+
+####Problem 14.7####
+###Data Input###
+#efficiency of water use
+efficiency<-c(8.1, 9.7, 8.6, 15.5, 36.0, 34.2, 34.5, 33.1, 34.6, 34.0, 40.7,
+              39.3, 10.0, 6.2, 5.1, 10.9, 21.5, 19.7, 19.9, 21.9, 30.7, 28.9,
+              26.4, 25.7, 10.6, 6.3, 4.5, 10.4, 19.4, 19.7, 21.7, 19.9, 23.2,
+              23.0, 19.4, 23.2)
+#water
+water<-factor(c(rep("16", 12), rep("22", 12), rep("28", 12)))
+#nitrogen
+nitrogen<-factor(rep(c(rep("0", 4), rep("130", 4), rep("260", 4)), 3))
+#Phosphorous rates
+phosphorus<-factor(rep(c("P1","P2"), 18))
+#block
+block.prb14_7<-factor(rep(c("B1", "B1", "B2", "B2"), 9))
+
+##Dataframe for Ch. 14, problem 7##
+prb14_7.tibble<-tibble(efficiency, water, nitrogen, phosphorus, block.prb14_7)
+
+###Part a)###
+##ANOVA##
+prb14_7.aov<-aov(efficiency~nitrogen*water*phosphorus+Error(block.prb14_7/phosphorus),
+                 data = prb14_7.tibble)
+
+###Part b)###
+#grand mean
+muefficiency<-mean(efficiency)
+##Cell means##
+celmu14_7.list<-list(
+  #mean for water==16, nitrogen==0, phosphorus==P1
+  celmu_16_0_P1<-mean(efficiency[water=="16" & nitrogen=="0" & phosphorus=="P1"]),
+  #mean for water==16, nitrogen==130, phosphorus==P1
+  celmu_16_130_P1<-mean(efficiency[water=="16" & nitrogen=="130" & phosphorus=="P1"]),
+  #mean for water==16, nitrogen==260, phosphorus==P1
+  celmu_16_260_P1<-mean(efficiency[water=="16" & nitrogen=="260" & phosphorus=="P1"]),
+  #mean for water==22, nitrogen==0, phosphorus==P1
+  celmu_22_0_P1<-mean(efficiency[water=="22" & nitrogen=="0" & phosphorus=="P1"]),
+  #mean for water==22, nitrogen==130, phosphorus==P1
+  celmu_22_130_P1<-mean(efficiency[water=="22" & nitrogen=="130" & phosphorus=="P1"]),
+  #mean for water==22, nitrogen==260, phosphorus==P1
+  celmu_22_260_P1<-mean(efficiency[water=="22" & nitrogen=="260" & phosphorus=="P1"]),
+  #mean for water==28, nitrogen==0, phosphorus==P1
+  celmu_28_0_P1<-mean(efficiency[water=="28" & nitrogen=="0" & phosphorus=="P1"]),
+  #mean for water==28, nitrogen==130, phosphorus==P1
+  celmu_28_130_P1<-mean(efficiency[water=="28" & nitrogen=="130" & phosphorus=="P1"]),
+  #mean for water==28, nitrogen==260, phosphorus==P1
+  celmu_28_260_P1<-mean(efficiency[water=="28" & nitrogen=="260" & phosphorus=="P1"]),
+  #mean for water==16, nitrogen==0, phosphorus==P2
+  celmu_16_0_P2<-mean(efficiency[water=="16" & nitrogen=="0" & phosphorus=="P2"]),
+  #mean for water==16, nitrogen==130, phosphorus==P2
+  celmu_16_130_P2<-mean(efficiency[water=="16" & nitrogen=="130" & phosphorus=="P2"]),
+  #mean for water==16, nitrogen==260, phosphorus==P2
+  celmu_16_260_P2<-mean(efficiency[water=="16" & nitrogen=="260" & phosphorus=="P2"]),
+  #mean for water==22, nitrogen==0, phosphorus==P2
+  celmu_22_0_P2<-mean(efficiency[water=="22" & nitrogen=="0" & phosphorus=="P2"]),
+  #mean for water==22, nitrogen==130, phosphorus==P2
+  celmu_22_130_P2<-mean(efficiency[water=="22" & nitrogen=="130" & phosphorus=="P2"]),
+  #mean for water==22, nitrogen==260, phosphorus==P2
+  celmu_22_260_P2<-mean(efficiency[water=="22" & nitrogen=="260" & phosphorus=="P2"]),
+  #mean for water==28, nitrogen==0, phosphorus==P2
+  celmu_28_0_P2<-mean(efficiency[water=="28" & nitrogen=="0" & phosphorus=="P2"]),
+  #mean for water==28, nitrogen==130, phosphorus==P2
+  celmu_28_130_P2<-mean(efficiency[water=="28" & nitrogen=="130" & phosphorus=="P2"]),
+  #mean for water==28, nitrogen==260, phosphorus==P2
+  celmu_28_260_P2<-mean(efficiency[water=="28" & nitrogen=="260" & phosphorus=="P2"])
+)
+##Marginal Means##
+#'N*W'
+marmuNW.list<-list(
+   marmuNW_16_0<-mean(efficiency[water=="16"& nitrogen=="0"]),
+   marmuNW_16_130<-mean(efficiency[water=="16"& nitrogen=="130"]),
+   marmuNW_16_260<-mean(efficiency[water=="16"& nitrogen=="260"]),
+   marmuNW_22_0<-mean(efficiency[water=="22"& nitrogen=="0"]),
+   marmuNW_22_130<-mean(efficiency[water=="22"& nitrogen=="130"]),
+   marmuNW_22_260<-mean(efficiency[water=="22"& nitrogen=="260"]),
+   marmuNW_28_0<-mean(efficiency[water=="28"& nitrogen=="0"]),
+   marmuNW_28_130<-mean(efficiency[water=="28"& nitrogen=="130"]),
+   marmuNW_28_260<-mean(efficiency[water=="28"& nitrogen=="260"])
+)
+#W*P
+marmuWP.list<-list(
+  marmuWP_16_P1<-mean(efficiency[water=="16"& phosphorus=="P1"]),
+  marmuWP_22_P1<-mean(efficiency[water=="22"& phosphorus=="P1"]),
+  marmuWP_28_P1<-mean(efficiency[water=="28"& phosphorus=="P1"]),
+  marmuWP_16_P2<-mean(efficiency[water=="16"& phosphorus=="P2"]),
+  marmuWP_22_P2<-mean(efficiency[water=="22"& phosphorus=="P2"]),
+  marmuWP_28_P2<-mean(efficiency[water=="28"& phosphorus=="P2"])
+)
+#N*P
+marmuNP.list<-list(
+  marmuNP_16_P1<-mean(efficiency[nitrogen=="0"& phosphorus=="P1"]),
+  marmuNP_22_P1<-mean(efficiency[nitrogen=="130"& phosphorus=="P1"]),
+  marmuNP_28_P1<-mean(efficiency[nitrogen=="260"& phosphorus=="P1"]),
+  marmuNP_16_P2<-mean(efficiency[nitrogen=="0"& phosphorus=="P2"]),
+  marmuNP_22_P2<-mean(efficiency[nitrogen=="130"& phosphorus=="P2"]),
+  marmuNP_28_P2<-mean(efficiency[nitrogen=="260"& phosphorus=="P2"])
+)
+#Means of Phosphorus
+muphos<-c(mean(efficiency[phosphorus=="P1"]), mean(efficiency[phosphorus=="P2"]))
+#Means of Nitrogen
+munitro<-c(mean(efficiency[nitrogen=="0"]), mean(efficiency[nitrogen=="130"]),
+         mean(efficiency[nitrogen=="260"]))
+#Means of Water
+muwater<-c(mean(efficiency[water=="16"]), mean(efficiency[water=="22"]),
+           mean(efficiency[water=="28"]))
+
+##Standard Errors##
+#number of levels of blocks (i.e. replications)
+r.prb14_7<-length(levels(block.prb14_7))
+#number of phosphorus treatments
+a.prb14_7<-length(levels(phosphorus))
+#number of nitrogen treatments
+b.prb14_7<-length(levels(nitrogen))
+#number of water treatments
+c.prb14_7<-length(levels(water))
+#MSE of the "whole-plot"
+MSE1.prb14_7<-summary(prb14_7.aov)[[2]][[1]][['Mean Sq']][2]
+#MSE of the "sub-plots
+MSE2.prb14_7<-summary(prb14_7.aov)[[3]][[1]][['Mean Sq']][7]
+ 
+#cell means standard errors
+secelmu.prb14_7<-sqrt(MSE2.prb14_7/r.prb14_7)
+#marginal mean standard errors for NW
+semarmuNW.prb14_7<-sqrt(MSE2.prb14_7/(r.prb14_7*a.prb14_7))
+#marginal mean standard errors for PW
+semarmuPW.prb14_7<-sqrt(MSE2.prb14_7/(r.prb14_7*b.prb14_7))
+#marginal mean standard errors for NP
+semarmuNP.prb14_7<-sqrt(MSE2.prb14_7/(r.prb14_7*c.prb14_7))
+#marginal means for P
+semarmuP.prb14_7<-sqrt(MSE1.prb14_7/(b.prb14_7*c.prb14_7*r.prb14_7))
+#marginal means for N
+semarmuN.prb14_7<-sqrt(MSE2.prb14_7/(a.prb14_7*c.prb14_7*r.prb14_7))
+#marginal means for W
+semarmuW.prb14_7<-sqrt(MSE2.prb14_7/(a.prb14_7*b.prb14_7*r.prb14_7))
+
+##Standard Errors for the differences between two means
+#Phosphorus
+sediffPhos.prb14_7<-sqrt(2*MSE1.prb14_7/(b.prb14_7*c.prb14_7*r.prb14_7))
+#Nitrogen
+sediffNitro.prb14_7<-sqrt(2*MSE2.prb14_7/(a.prb14_7*c.prb14_7*r.prb14_7))
+#Water
+sediffWater.prb14_7<-sqrt(2*MSE2.prb14_7/(a.prb14_7*b.prb14_7*r.prb14_7))
+#Water by nitrogen
+sediffWN.prb14_7<-sqrt(2*MSE2.prb14_7/(a.prb14_7*r.prb14_7))
+
+###Part d)###
+#***See the ANOVA output from part a)
+
+###Part e)###
+##Get the Contrasts##
+#apply the contrasts to the "plants" treatment variable
+contrasts(prb14_7.tibble$nitrogen)<-contr.poly(3)
+contrasts(prb14_7.tibble$water)<-contr.poly(3)
+
+##contrast ANOVA
+#ANOVA model
+prb14_7contr.aov<-aov(efficiency~nitrogen*water*phosphorus+Error(block.prb14_7/phosphorus),
+                      data = prb14_7.tibble)
+#partition sum of squares for the main effect of 'plants' and its interaction with 'hybrid'
+summary(prb14_7contr.aov, split=list(nitrogen=list("Linear"=1, "Quadratic"=2),
+                                     water=list("Linear"=1, "Quadratic"=2),
+                                     `nitrogen:water`=list("Linear"=1, "Quadratic"=2),
+                                     `nitrogen:phosphorus`=list("Linear"=1, "Quadratic"=2),
+                                     `water:phosphorus`=list("Linear"=1, "Quadratic"=2),
+                                     `nitrogen:water:phosphorus`=list("L:L"=1, "L:Q"=2, "Q:L"=3, "Q:Q"=4)))[[3]][[1]]
+                                     
