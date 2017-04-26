@@ -380,8 +380,8 @@ prb14_7contr.aov<-aov(efficiency~nitrogen*water*phosphorus+Error(block.prb14_7/p
 #partition sum of squares for the main effect of 'plants' and its interaction with 'hybrid'
 summary(prb14_7contr.aov, split=list(nitrogen=list("Linear"=1, "Quadratic"=2),
                                      water=list("Linear"=1, "Quadratic"=2),
-                                     `nitrogen:water`=list("Linear"=1, "Quadratic"=2),
+                                     `nitrogen:water`=list("L:L"=1, "Q:L"=2, "L:Q"=3, "Q:Q"=4),
                                      `nitrogen:phosphorus`=list("Linear"=1, "Quadratic"=2),
                                      `water:phosphorus`=list("Linear"=1, "Quadratic"=2),
-                                     `nitrogen:water:phosphorus`=list("L:L"=1, "L:Q"=2, "Q:L"=3, "Q:Q"=4)))[[3]][[1]]
+                                     `nitrogen:water:phosphorus`=list("L:L"=1, "Q:L"=2, "L:Q"=3, "Q:Q"=4)))[[3]][[1]]
                                      
