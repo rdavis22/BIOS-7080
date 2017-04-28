@@ -153,8 +153,83 @@ pwcchem21<-chem2mu-chem1mu
 
 ####Problem 3####
 ###Data Input###
+#grapefruit sales response variable
+sales.prb3<-c(62.1, 61.3, 60.8, 58.2, 57.9, 55.1, 51.6, 49.2, 46.2, 53.7, 51.5,
+              48.3, 61.4, 58.7, 56.6, 58.5, 57.2, 54.3, 46.8, 43.2, 41.5, 51.2,
+              49.8, 47.9)
+#store blocking factor
+store<-factor(c(rep(1,3), rep(2,3), rep(3,3), rep(4,3), rep(5,3), rep(6,3), 
+                rep(7,3), rep(8,3)))
+#'price_level' treatment factor
+price_level.prb3<-factor(rep(c(1, 2, 3), 8))
+
+##Dataframe for problem 3
+prb3.tibble<-tibble(sales.prb3, store, price_level.prb3)
+
+###Part b)###
+##ANOVA##
+prb3.aov<-aov(sales.prb3~store+price_level.prb3, data = prb3.tibble)
+
+##hypothesis testing##
+#Mean Square 'price_level.prb3' treatment
+MSpl.prb3<-summary(prb3.aov)[[1]][['Mean Sq']][2]
+#Mean Square Error
+MSE.prb3<-summary(prb3.aov)[[1]][['Mean Sq']][3]
+#DF price_level.prb3' treatment
+DFpl.prb3<-summary(prb3.aov)[[1]][['Df']][2]
+#Mean Square Error
+DFE.prb3<-summary(prb3.aov)[[1]][['Df']][3]
+
+#FTest
+F0_price_level.prb3<-MSpl.prb3/MSE.prb3
+Fcrit_pl.prb3<-qf(0.95, DFpl.prb3, DFE.prb3)
+pval_pl.prb3<-pf(F0_price_level.prb3, DFpl.prb3, DFE.prb3, lower.tail = F)
+
+###Part c)###
+##contrasts##
+#1 vs. 2
+C1<-c(1, -1, 0)
+#1 vs. 3
+C2<-c(1, 0, -1)
+#2 vs. 3
+C3<-c(0, 1, -1)
+#Contrast Matrix
+contmat.prb3<-matrix(c(C1, C2, C3), ncol=3, byrow=T)
+
+##Test for orthogonality##
+orthoC1C2<-sum(C1*C2)
+orthoC1C3<-sum(C1*C3)
+orthoC2C3<-sum(C2*C3)
+
+#see if the matrix is orthogonal
+orthomat.prb3<-det(contmat.prb3)
+
+###Part d)###
+##Relative efficiency of RCBD vs. CRD
+#number of levels of 'store' block
+r.prb3<-length(levels(store))
+#number of levels of 'price level' treatment
+t.prb3<-length(levels(price_level.prb3))
+#Sum of squares of blocks (i.e. 'store' blocking factor)
+SSstore.prb3<-summary(prb3.aov)[[1]][['Sum Sq']][1]
+#Residual Df for RCBD
+Dfrcb.prb3<-summary(prb3.aov)[[1]][['Df']][3]
+#Residual Df for CRD
+Dfcr.prb3<-summary(aov(sales.prb3~price_level.prb3))[[1]][['Df']][2]
+#estimated variance of complete randomized design
+s2_cr.prb3<-(SSstore.prb3+r.prb3*(t.prb3-1)*MSE.prb3)/(r.prb3*t.prb3-1)
+
+#Uncorrected RE
+uncorrRE.prb3<-s2_cr.prb3/MSE.prb3
+
+#Corrected RE
+corrfactor.prb3<-((Dfrcb.prb3+1)*(Dfcr.prb3+3))/((Dfrcb.prb3+3)*(Dfcr.prb3+1)) #correction factor
+corrRE.prb3<-corrfactor.prb3*uncorrRE.prb3
 
 ####Problem 4####
 ###Data Input###
 #percentage reflectance of pigment
-reflectance<-c()
+reflectance<-c(64.5, 66.3, 74.1, 66.5, 68.3, 69.5, 73.8, 70.0, 70.3, 73.1, 78.0,
+               72.3, 65.2, 65.0, 73.8, 64.8, 69.2, 70.3, 74.5, 68.3, 71.2, 72.8,
+               79.1, 71.5, 66.2, 66.5, 72.3, 67.7, 69.0, 69.0, 75.4, 68.6, 70.8,
+               74.2, 80.1, 72.4)
