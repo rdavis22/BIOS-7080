@@ -152,6 +152,9 @@ pwcchem21<-chem2mu-chem1mu
 
 
 ####Problem 3####
-
+###Data Input###
 
 ####Problem 4####
+###Data Input###
+#percentage reflectance of pigment
+reflectance<-c()
