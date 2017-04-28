@@ -246,3 +246,187 @@ prb4.tibble<-tibble(reflectance, application, mix, day)
 ###Part b)###
 ##ANOVA##
 prb4.aov<-aov(reflectance~mix*application+Error(day/mix), data = prb4.tibble)
+
+##terms for hypothesis testing##
+#number of 'days' (i.e. replications)
+r.prb4<-length(levels(day))
+#number of 'mix' whole-plot treatments
+a.prb4<-length(levels(mix))
+#number of 'application' sub-plot treatments
+b.prb4<-length(levels(application))
+#MSE of the "whole-plot"
+MSE1.prb4<-summary(prb4.aov)[[2]][[1]][['Mean Sq']][2]
+#Df E1
+DfE1.prb4<-summary(prb4.aov)[[2]][[1]][['Df']][2]
+#MSE of the "sub-plots"
+MSE2.prb4<-summary(prb4.aov)[[3]][[1]][['Mean Sq']][3]
+#Df E1
+DfE2.prb4<-summary(prb4.aov)[[3]][[1]][['Df']][3]
+
+##Mean Squares##
+#Mean Square of mix
+MSmix.prb4<-summary(prb4.aov)[[2]][[1]][['Mean Sq']][1]
+#Mean Square application
+MSapplication.prb4<-summary(prb4.aov)[[3]][[1]][['Mean Sq']][1]
+#Mean Square mix:application
+MSintrct.prb4<-summary(prb4.aov)[[3]][[1]][['Mean Sq']][2]
+
+##Degrees of Freedom##
+#Df mix
+Dfmix.prb4<-summary(prb4.aov)[[2]][[1]][['Df']][1]
+#Df application
+Dfapplication.prb4<-summary(prb4.aov)[[3]][[1]][['Df']][1]
+#Df mix:application
+Dfintrct.prb4<-summary(prb4.aov)[[3]][[1]][['Df']][2]
+
+##F Tests##
+#F Test for Interaction
+F0_intrct.prb4<-MSintrct.prb4/MSE2.prb4
+#critical F value (F(0.05, Dfintrct.prb4, DfE2.prb4)
+Fcrit_intrct<-qf(0.95, Dfintrct.prb4, DfE2.prb4)
+#p_value
+pF0_intrct<-pf(F0_intrct.prb4, Dfintrct.prb4, DfE2.prb4,lower.tail = F)
+
+#F Test for 'mix'
+F0_mix.prb4<-MSmix.prb4/MSE1.prb4
+#critical F value (F(0.05, Dfmix.prb4, DfE1.prb4)
+Fcrit_mix<-qf(0.95, Dfmix.prb4, DfE1.prb4)
+#p_value
+pF0_mix<-pf(F0_mix.prb4, Dfmix.prb4, DfE1.prb4,lower.tail = F)
+
+#F Test for 'application'
+F0_application.prb4<-MSapplication.prb4/MSE2.prb4
+#critical F value (F(0.05, Dfapplication.prb4, DfE1.prb4)
+Fcrit_application<-qf(0.95, Dfapplication.prb4, DfE2.prb4)
+#p_value
+pF0_application<-pf(F0_application.prb4, Dfapplication.prb4, DfE2.prb4,lower.tail = F)
+
+###Part c)###
+#error degrees of freedom for the RCBD
+f2.prb4<-(a.prb4*b.prb4-1)*(r.prb4-1)
+#"K" Factors for subplot and whole plot design
+Ksub.prb4<-((DfE2.prb4+1)*(f2.prb4+3))/((DfE2.prb4+3)*(f2.prb4+1))
+Kwhol.prb4<-((DfE1.prb4+1)*(f2.prb4+3))/((DfE1.prb4+3)*(f2.prb4+1))
+
+##Relative Efficiency for subplot comparisons##
+REsub.prb4<-Ksub.prb4*((a.prb4*(b.prb4-1)*MSE2.prb4)
+                             +(a.prb4-1)*MSE1.prb4)/((a.prb4*b.prb4-1)*MSE2.prb4)
+
+##Relative Efficiency for whole plot comparisons##
+REwhol.prb4<-Kwhol.prb4*((a.prb4*(b.prb4-1)*MSE2.prb4)
+                               +(a.prb4-1)*MSE1.prb4)/((a.prb4*b.prb4-1)*MSE1.prb4)
+
+###Part d)###
+##grand mean of 'reflectance'
+mureflectance<-mean(reflectance)
+##Cell means##
+celmu.list<-list(
+  #mean for mix==1, application==1
+  celmu_11<-mean(reflectance[mix==1 & application==1]),
+  #mean for mix==2, application==1
+  celmu_21<-mean(reflectance[mix==2 & application==1]),
+  #mean for mix==3, application==1
+  celmu_31<-mean(reflectance[mix==3 & application==1]),
+  #mean for mix==4, application==1
+  celmu_41<-mean(reflectance[mix==4 & application==1]),
+  #mean for mix==1, application==2
+  celmu_12<-mean(reflectance[mix==1 & application==2]),
+  #mean for mix==2, application==2
+  celmu_22<-mean(reflectance[mix==2 & application==2]),
+  #mean for mix==3, application==2
+  celmu_32<-mean(reflectance[mix==3 & application==2]),
+  #mean for mix==4, application==2
+  celmu_42<-mean(reflectance[mix==4 & application==2]),
+  #mean for mix==1, application==3
+  celmu_13<-mean(reflectance[mix==1 & application==3]),
+  #mean for mix==2, application==3
+  celmu_23<-mean(reflectance[mix==2 & application==3]),
+  #mean for mix==3, application==3
+  celmu_33<-mean(reflectance[mix==3 & application==3]),
+  #mean for mix==4, application==3
+  celmu_43<-mean(reflectance[mix==4 & application==3])
+)
+##Marginal Means for 'application'
+marmuapplication.list<-list(
+  marmu_app1<-mean(reflectance[application==1]),
+  marmu_app2<-mean(reflectance[application==2]),
+  marmu_app3<-mean(reflectance[application==3])
+)
+##Marginal Means for 'mix'
+marmumix.list<-list(
+  marmu_mix1<-mean(reflectance[mix==1]),
+  marmu_mix2<-mean(reflectance[mix==2]),
+  marmu_mix3<-mean(reflectance[mix==3]),
+  marmu_mix4<-mean(reflectance[mix==4])
+)
+
+#cell means standard errors
+secelmu.prb4<-sqrt(MSE2.prb4/r.prb4)
+#marginal mean standard errors for 'mix'
+semarmumix.prb4<-sqrt(MSE1.prb4/(r.prb4*b.prb4))
+#marginal mean standard errors for 'application'
+semarmuapp.prb4<-sqrt(MSE2.prb4/(r.prb4*a.prb4))
+
+
+####Problem 5####
+###Data Input###
+#strength ofaluminum alloy
+strength<-c(1.230, 1.346, 1.235, 1.301, 1.346, 1.315, 1.247, 1.275, 1.324,
+            1.259, 1.400, 1.206, 1.263, 1.392, 1.320, 1.296, 1.268, 1.315,
+            1.316, 1.329, 1.250, 1.274, 1.384, 1.346, 1.273, 1.260, 1.392,
+            1.300, 1.362, 1.239, 1.268, 1.375, 1.357, 1.264, 1.265, 1.364,
+            1.287, 1.346, 1.273, 1.247, 1.362, 1.336, 1.301, 1.280, 1.319,
+            1.292, 1.382, 1.215, 1.215, 1.328, 1.342, 1.262, 1.271, 1.323)
+#bar size
+bar_size<-factor(c(rep("1 inch", 18), rep("1.5 inches", 18),
+                   rep("2 inches", 18)))
+#Vendors
+Vendors<-factor(rep(c(rep("Vendor 1", 3), rep("Vendor 2", 3),
+                      rep("Vendor 3", 3)), 6))
+#Heat Level
+heat_level<-factor(rep(c(1, 2, 3, 1, 2, 3, 1, 2, 3), 6))
+
+##Dataframe for Problem 5 data##
+prb5.tibble<-tibble(strength, bar_size, Vendors, heat_level)
+
+###Part b)###
+##ANOVA##
+#model with C ('heat level') nested in B ('Vendors) and crossed with A ('bar_size')
+prb5.aov<-aov(strength~bar_size*Vendors*heat_level%in%Vendors,
+              data = prb5.tibble)
+
+##Hypothesis Testing##
+#Degrees of Freedom#
+DfA<-summary(prb5.aov)[[1]][['Df']][1] #bar_size
+DfB<-summary(prb5.aov)[[1]][['Df']][2] #Vendors
+DfAB<-summary(prb5.aov)[[1]][['Df']][3] #bar_size:Vendors
+DfBC<-summary(prb5.aov)[[1]][['Df']][4] #heat_level %in% Vendors
+DfABC<-summary(prb5.aov)[[1]][['Df']][5] #heat_level %in% Vendors:bar_size
+DfRes<-summary(prb5.aov)[[1]][['Df']][6] #residuals
+#Mean Squares
+MSA<-summary(prb5.aov)[[1]][['Mean Sq']][1]
+MSB<-summary(prb5.aov)[[1]][['Mean Sq']][2]
+MSAB<-summary(prb5.aov)[[1]][['Mean Sq']][3]
+MSBC<-summary(prb5.aov)[[1]][['Mean Sq']][4]
+MSABC<-summary(prb5.aov)[[1]][['Mean Sq']][5]
+MSRes<-summary(prb5.aov)[[1]][['Mean Sq']][6]
+#Hypothesis tests
+F0_A<-MSA/MSABC #test for "A" (bar_level)
+Fcrit_A<-qf(0.95, DfA, DfABC)
+pA<-pf(F0_A, DfA, DfABC, lower.tail = F)
+
+F0_B<-MSB/MSBC #test for "B" ("Vendors")
+Fcrit_B<-qf(0.95, DfB, DfBC)
+pB<-pf(F0_B, DfB, DfBC, lower.tail = F)
+
+F0_AB<-MSAB/MSABC #test for "AB" ("bar_level:Vendors")
+Fcrit_AB<-qf(0.95, DfAB, DfABC)
+pAB<-pf(F0_AB, DfAB, DfABC, lower.tail = F)
+
+F0_BC<-MSBC/MSABC #test for "C/B" ("heat_level%in%Vendors)
+Fcrit_BC<-qf(0.95, DfBC, DfABC)
+pBC<-pf(F0_BC, DfBC, DfABC, lower.tail = F)
+
+F0_ABC<-MSABC/MSRes #test for "AC/B" (bar_size:heat_level%in%Vendors)
+Fcrit_ABC<-qf(0.95, DfABC, DfRes)
+pABC<-pf(F0_ABC, DfABC, DfRes, lower.tail = F)
