@@ -150,3 +150,15 @@ prb15_1.lm<-lm(prb15_1.matrix~1, data=prb15_1.tibble)
 #                  within=.(time, diet),
 #                  wid=.(subject.prb1),
 #                  dv=.(glucose))
+
+
+####Problem 3####
+###Data Input###
+#water loss
+water_loss<-c(4.04, 6.50, 4.01, 10.71, 10.66, 2.25, 18.23, 1.94, 8.39, 7.42,
+              3.55, 15.01, 1.58, 8.63, 13.86, 3.02, 15.15, 4.15, 4.09, 5.15,
+              1.94, 9.59, 12.14, 6.30, 12.79)
+#subject
+subject.prb3<-factor(c(rep(1,5), rep(2,5), rep(3,5), rep(4,5), rep(5,5)))
+#Treatment
+treat.prb3<-factor(rep(c(1, 2, 3, 4, 5), 5))
