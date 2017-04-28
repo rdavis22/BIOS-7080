@@ -233,3 +233,16 @@ reflectance<-c(64.5, 66.3, 74.1, 66.5, 68.3, 69.5, 73.8, 70.0, 70.3, 73.1, 78.0,
                72.3, 65.2, 65.0, 73.8, 64.8, 69.2, 70.3, 74.5, 68.3, 71.2, 72.8,
                79.1, 71.5, 66.2, 66.5, 72.3, 67.7, 69.0, 69.0, 75.4, 68.6, 70.8,
                74.2, 80.1, 72.4)
+#application method of paint (1=brushing, 2=spraying, roling=3) (sub-plot factor)
+application<-factor(rep(c(rep(1, 4), rep(2, 4), rep(3, 4)), 3))
+#paint mixing method (whole-plot effect)
+mix<-factor(rep(c(1, 2, 3, 4), 9))
+#'Day' block effect
+day<-factor(c(rep(1, 12), rep(2, 12), rep(3, 12)))
+
+##Dataframe for Problem 4##
+prb4.tibble<-tibble(reflectance, application, mix, day)
+
+###Part b)###
+##ANOVA##
+prb4.aov<-aov(reflectance~mix*application+Error(day/mix), data = prb4.tibble)
