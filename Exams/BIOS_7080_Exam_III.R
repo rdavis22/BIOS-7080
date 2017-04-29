@@ -430,3 +430,42 @@ pBC<-pf(F0_BC, DfBC, DfABC, lower.tail = F)
 F0_ABC<-MSABC/MSRes #test for "AC/B" (bar_size:heat_level%in%Vendors)
 Fcrit_ABC<-qf(0.95, DfABC, DfRes)
 pABC<-pf(F0_ABC, DfABC, DfRes, lower.tail = F)
+
+
+####Problem 6####
+###Data Input###
+#IL-1 counts per minute
+counts<-c(6850, 29100, 34300, 27400, 41100, 47000, 20700, 30700, 33600, 3000,
+          4900, 5900, 22100, 25700, 27100, 14300, 17200, 25700, 24300, 33600,
+          31400, 2400, 4700, 9400, 6500, 7900, 6400, 4800, 4700, 5700, 2000,
+          3000, 3700, 2200, 5100, 6800)
+#Treatment
+treatment<-factor(c(rep(1, 12), rep(2, 12), rep(3, 12)))
+#subject
+subject.prb6<-factor(c(rep(1,3), rep(2,3), rep(3,3), rep(4,3), rep(5,3),
+                       rep(6,3), rep(7,3), rep(8,3), rep(9,3), rep(10,3),
+                       rep(11,3), rep(12,3)))
+#Phases of activity
+phase<-factor(rep(c("Phase A", "Phase B", "Phase C"), 12))
+
+##Dataframe for Problem 6##
+prb6.tibble<-tibble(counts, treatment, subject.prb6, phase)
+
+###Part b)###
+#split plot-repeated measures anova with "subjects" nested in time
+prb6.aov<-aov(counts~treatment*phase+Error(subject.prb6/(phase)), data = prb6.tibble)
+
+##Hypothesis testing##
+#Mean Square Phase
+MSPhase<-summary(prb6.aov)[[2]][[1]][['Mean Sq']][1]
+#Mean Square Error(2)
+MSE2.prb6<-summary(prb6.aov)[[2]][[1]][['Mean Sq']][3]
+#Mean Square Phase
+DfPhase<-summary(prb6.aov)[[2]][[1]][['Df']][1]
+#Mean Square Error(2)
+DfE2.prb6<-summary(prb6.aov)[[2]][[1]][['Df']][3]
+
+#F Tests
+F0_Phase<-MSPhase/MSE2.prb6
+Fcrit_Phase<-qf(0.95, DfPhase, DfE2.prb6)
+pPhase<-pf(F0_Phase, DfPhase, DfE2.prb6, lower.tail = F)
